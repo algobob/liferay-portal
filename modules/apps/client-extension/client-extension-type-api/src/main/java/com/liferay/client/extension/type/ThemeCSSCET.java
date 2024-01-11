@@ -27,4 +27,9 @@ public interface ThemeCSSCET extends CET {
 	)
 	public String getMainURL();
 
+	@CETProperty(
+			defaultValue = "", name = "frontendTokenDefinition", type = CETProperty.Type.String
+	)
+	public String getFrontendTokenDefinition();
+
 }

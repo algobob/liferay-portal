@@ -9,6 +9,8 @@ import com.liferay.client.extension.exception.ClientExtensionEntryTypeSettingsEx
 import com.liferay.client.extension.type.ThemeCSSCET;
 import com.liferay.client.extension.type.internal.ThemeCSSCETImpl;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONException;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
@@ -81,6 +83,20 @@ public class ThemeCSSCETImplFactoryImpl
 			throw new ClientExtensionEntryTypeSettingsException(
 				"Invalid Main CSS URL: " + mainURL, "main-css-url-x-is-invalid",
 				mainURL);
+		}
+
+		String frontendTokenDefinition =
+			newThemeCSSCET.getFrontendTokenDefinition();
+
+		if (!Validator.isBlank(frontendTokenDefinition)) {
+			try {
+				JSONFactoryUtil.createJSONObject(frontendTokenDefinition);
+			}
+			catch (JSONException jsonException) {
+				throw new ClientExtensionEntryTypeSettingsException(
+					"Invalid frontend token definition",
+					"frontend-token-definition-is-invalid");
+			}
 		}
 	}
 
