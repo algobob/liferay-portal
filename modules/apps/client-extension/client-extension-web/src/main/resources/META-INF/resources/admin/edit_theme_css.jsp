@@ -28,3 +28,11 @@ ThemeCSSCET themeCSSCET = editClientExtensionEntryDisplayContext.getCET();
 		<liferay-ui:message key="this-css-replaces-clay-css" />
 	</div>
 </aui:field-wrapper>
+
+<aui:field-wrapper cssClass="form-group">
+	<aui:input label="frontend-token-definition" name="frontendTokenDefinition" type="textarea" value="<%= themeCSSCET.getFrontendTokenDefinition() %>" />
+
+	<div class="form-text">
+		<liferay-ui:message key="this-css-replaces-main-css" />
+	</div>
+</aui:field-wrapper>
