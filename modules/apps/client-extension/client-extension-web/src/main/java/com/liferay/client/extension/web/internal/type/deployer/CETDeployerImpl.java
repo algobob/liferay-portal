@@ -11,6 +11,7 @@ import com.liferay.client.extension.type.CustomElementCET;
 import com.liferay.client.extension.type.EditorConfigContributorCET;
 import com.liferay.client.extension.type.IFrameCET;
 import com.liferay.client.extension.type.JSImportMapsEntryCET;
+import com.liferay.client.extension.type.ThemeCSSCET;
 import com.liferay.client.extension.type.deployer.CETDeployer;
 import com.liferay.client.extension.util.CETUtil;
 import com.liferay.client.extension.web.internal.frontend.js.importmaps.extender.ClientExtensionJSImportMapsContributor;
@@ -28,6 +29,7 @@ import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
 import com.liferay.portal.kernel.portlet.FriendlyURLMapper;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
@@ -76,12 +78,18 @@ public class CETDeployerImpl implements CETDeployer {
 
 			return _deploy((JSImportMapsEntryCET)cet);
 		}
+		else if (Objects.equals(
+					cet.getType(),
+					ClientExtensionEntryConstants.TYPE_THEME_CSS)) {
+
+			return _deploy((ThemeCSSCET)cet);
+		}
 
 		return Collections.emptyList();
 	}
 
 	@Activate
-	protected void activate(BundleContext bundleContext) {
+	public void activate(BundleContext bundleContext) {
 		_bundleContext = bundleContext;
 	}
 
@@ -172,6 +180,15 @@ public class CETDeployerImpl implements CETDeployer {
 				new ClientExtensionJSImportMapsContributor(
 					jsImportMapsEntryCET.getBareSpecifier(), _jsonFactory,
 					jsImportMapsEntryCET.getURL())));
+	}
+
+	private List<ServiceRegistration<?>> _deploy(ThemeCSSCET cet) {
+		return Arrays.asList(
+			_bundleContext.registerService(
+				ThemeCSSCET.class, cet,
+				HashMapDictionaryBuilder.put(
+					"external.reference.code", cet.getExternalReferenceCode()
+				).build()));
 	}
 
 	private String _getPortletId(CET cet) {
