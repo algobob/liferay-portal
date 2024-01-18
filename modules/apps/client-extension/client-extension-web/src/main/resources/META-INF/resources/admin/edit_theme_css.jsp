@@ -28,3 +28,18 @@ ThemeCSSCET themeCSSCET = editClientExtensionEntryDisplayContext.getCET();
 		<liferay-ui:message key="this-css-replaces-clay-css" />
 	</div>
 </aui:field-wrapper>
+
+<aui:field-wrapper cssClass="form-group">
+	<react:component
+		module="js/components/FileEntryPicker"
+		props='<%=
+			HashMapBuilder.<String, Object>put(
+				"frontendTokenDefinition", themeCSSCET.getFrontendTokenDefinition()
+			).put(
+				"frontendTokenDefinitionFileName", themeCSSCET.getFrontendTokenDefinitionFileName()
+			).put(
+				"namespace", liferayPortletResponse.getNamespace()
+			).build()
+		%>'
+	/>
+</aui:field-wrapper>

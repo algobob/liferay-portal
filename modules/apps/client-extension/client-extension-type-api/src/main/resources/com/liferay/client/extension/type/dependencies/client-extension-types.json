@@ -414,6 +414,16 @@
 			{
 				"name": "type",
 				"type": "CETProperty.Type.String"
+			},
+			{
+				"default": "",
+				"name": "frontendTokenDefinition",
+				"type": "CETProperty.Type.String"
+			},
+			{
+				"default": "",
+				"name": "frontendTokenDefinitionFileName",
+				"type": "CETProperty.Type.String"
 			}
 		]
 	},
