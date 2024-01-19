@@ -5,8 +5,12 @@
 
 package com.liferay.frontend.token.definition.internal;
 
+import com.liferay.client.extension.type.ThemeCSSCET;
 import com.liferay.frontend.token.definition.FrontendTokenDefinition;
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
+import com.liferay.osgi.service.tracker.collections.EagerServiceTrackerCustomizer;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.concurrent.DCLSingleton;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONException;
@@ -32,6 +36,7 @@ import java.util.regex.Pattern;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -47,7 +52,16 @@ public class FrontendTokenDefinitionRegistryImpl
 	implements FrontendTokenDefinitionRegistry {
 
 	@Override
-	public FrontendTokenDefinition getFrontendTokenDefinition(String themeId) {
+	public FrontendTokenDefinition getFrontendTokenDefinition(
+		long companyId, String externalReferenceCode, String themeId) {
+
+		if (externalReferenceCode != null) {
+			Map<String, FrontendTokenDefinition> frontendTokenDefinitionsMap =
+				_getFrontendTokenDefinitionsMap(companyId);
+
+			return frontendTokenDefinitionsMap.get(externalReferenceCode);
+		}
+
 		Map<String, FrontendTokenDefinitionImpl>
 			themeIdFrontendTokenDefinitionImpls =
 				_themeIdFrontendTokenDefinitionImplsDCLSingleton.getSingleton(
@@ -64,11 +78,76 @@ public class FrontendTokenDefinitionRegistryImpl
 	protected void activate(BundleContext bundleContext) {
 		_bundleTracker = new BundleTracker<>(
 			bundleContext, Bundle.ACTIVE, _bundleTrackerCustomizer);
+
+		_frontendTokenDefinitionsMap = new ConcurrentHashMap<>();
+
+		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
+			bundleContext, ThemeCSSCET.class, "external.reference.code",
+			new EagerServiceTrackerCustomizer<ThemeCSSCET, ThemeCSSCET>() {
+
+				@Override
+				public ThemeCSSCET addingService(
+					ServiceReference<ThemeCSSCET> serviceReference) {
+
+					ThemeCSSCET themeCSSCET = bundleContext.getService(
+						serviceReference);
+
+					try {
+						FrontendTokenDefinition frontendTokenDefinition =
+							new FrontendTokenDefinitionImpl(
+								jsonFactory.createJSONObject(
+									themeCSSCET.getFrontendTokenDefinition()),
+								jsonFactory,
+								ResourceBundleLoaderUtil.
+									getPortalResourceBundleLoader(),
+								themeCSSCET.getExternalReferenceCode());
+
+						Map<String, FrontendTokenDefinition>
+							frontendTokenDefinitionsMap =
+								_getFrontendTokenDefinitionsMap(
+									themeCSSCET.getCompanyId());
+
+						frontendTokenDefinitionsMap.put(
+							themeCSSCET.getExternalReferenceCode(),
+							frontendTokenDefinition);
+					}
+					catch (JSONException jsonException) {
+						throw new RuntimeException(jsonException);
+					}
+
+					return themeCSSCET;
+				}
+
+				@Override
+				public void modifiedService(
+					ServiceReference<ThemeCSSCET> serviceReference,
+					ThemeCSSCET themeCSSCET) {
+				}
+
+				@Override
+				public void removedService(
+					ServiceReference<ThemeCSSCET> serviceReference,
+					ThemeCSSCET themeCSSCET) {
+
+					Map<String, FrontendTokenDefinition>
+						frontendTokenDefinitionsMap =
+							_getFrontendTokenDefinitionsMap(
+								themeCSSCET.getCompanyId());
+
+					frontendTokenDefinitionsMap.remove(
+						themeCSSCET.getExternalReferenceCode());
+
+					bundleContext.ungetService(serviceReference);
+				}
+
+			});
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		_bundleTracker.close();
+
+		_serviceTrackerMap.close();
 	}
 
 	protected FrontendTokenDefinitionImpl getFrontendTokenDefinitionImpl(
@@ -184,6 +263,22 @@ public class FrontendTokenDefinitionRegistryImpl
 		}
 	}
 
+	private Map<String, FrontendTokenDefinition>
+		_getFrontendTokenDefinitionsMap(long companyId) {
+
+		Map<String, FrontendTokenDefinition> frontendTokenDefinitionsMap =
+			_frontendTokenDefinitionsMap.get(companyId);
+
+		if (frontendTokenDefinitionsMap == null) {
+			frontendTokenDefinitionsMap = new ConcurrentHashMap<>();
+
+			_frontendTokenDefinitionsMap.put(
+				companyId, frontendTokenDefinitionsMap);
+		}
+
+		return frontendTokenDefinitionsMap;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		FrontendTokenDefinitionRegistryImpl.class);
 
@@ -233,6 +328,9 @@ public class FrontendTokenDefinitionRegistryImpl
 
 			};
 
+	private Map<Long, Map<String, FrontendTokenDefinition>>
+		_frontendTokenDefinitionsMap;
+	private ServiceTrackerMap<String, ThemeCSSCET> _serviceTrackerMap;
 	private final Map<String, FrontendTokenDefinitionImpl>
 		_themeIdFrontendTokenDefinitionImpls = new ConcurrentHashMap<>();
 	private final DCLSingleton<Map<String, FrontendTokenDefinitionImpl>>

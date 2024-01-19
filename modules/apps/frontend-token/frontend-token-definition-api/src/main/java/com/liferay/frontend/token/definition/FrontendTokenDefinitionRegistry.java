@@ -10,6 +10,7 @@ package com.liferay.frontend.token.definition;
  */
 public interface FrontendTokenDefinitionRegistry {
 
-	public FrontendTokenDefinition getFrontendTokenDefinition(String themeId);
+	public FrontendTokenDefinition getFrontendTokenDefinition(
+		long companyId, String externalReferenceCode, String themeId);
 
 }
