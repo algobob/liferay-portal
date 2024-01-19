@@ -5,6 +5,7 @@
 
 package com.liferay.style.book.web.internal.display.context;
 
+import com.liferay.client.extension.util.CETUtil;
 import com.liferay.fragment.collection.item.selector.FragmentCollectionItemSelectorReturnType;
 import com.liferay.fragment.collection.item.selector.criterion.FragmentCollectionItemSelectorCriterion;
 import com.liferay.fragment.contributor.FragmentCollectionContributor;
@@ -305,6 +306,8 @@ public class EditStyleBookEntryDisplayContext {
 
 		FrontendTokenDefinition frontendTokenDefinition =
 			_frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
+				layoutSet.getCompanyId(),
+				CETUtil.getThemeCSSCETExternalReferenceCode(layoutSet),
 				layoutSet.getThemeId());
 
 		if (frontendTokenDefinition != null) {
