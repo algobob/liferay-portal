@@ -5,6 +5,7 @@
 
 package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 
+import com.liferay.client.extension.util.CETUtil;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
@@ -170,6 +171,8 @@ public class ChangeMasterLayoutMVCActionCommand
 			"tokenValues",
 			StyleBookEntryUtil.getFrontendTokensValues(
 				_frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
+					layoutSet.getCompanyId(),
+					CETUtil.getThemeCSSCETExternalReferenceCode(layoutSet),
 					layoutSet.getThemeId()),
 				themeDisplay.getLocale(), styleBookEntry)
 		);
