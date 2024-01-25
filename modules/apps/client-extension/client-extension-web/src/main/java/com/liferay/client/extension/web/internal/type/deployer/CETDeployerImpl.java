@@ -26,13 +26,14 @@ import com.liferay.frontend.js.importmaps.extender.JSImportMapsContributor;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.editor.configuration.EditorConfigContributor;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
 import com.liferay.portal.kernel.portlet.FriendlyURLMapper;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.url.builder.AbsolutePortalURLBuilderFactory;
 
@@ -90,7 +91,8 @@ public class CETDeployerImpl implements CETDeployer {
 		}
 		else if (Objects.equals(
 					cet.getType(),
-					ClientExtensionEntryConstants.TYPE_THEME_CSS)) {
+					ClientExtensionEntryConstants.TYPE_THEME_CSS) &&
+				 FeatureFlagManagerUtil.isEnabled("LPD-10773")) {
 
 			return _deploy((ThemeCSSCET)cet);
 		}

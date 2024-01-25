@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2024 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
@@ -37,6 +38,7 @@ import org.osgi.framework.ServiceRegistration;
  * @author Anderson Luiz
  * @author Thiago Buarque
  */
+@FeatureFlags("LPD-10773")
 @RunWith(Arquillian.class)
 public class CETDeployerTest {
 
@@ -75,15 +77,15 @@ public class CETDeployerTest {
 			serviceRegistrations.toString(), 1, serviceRegistrations.size());
 	}
 
-		@Inject
-		private CETDeployer _cetDeployer;
+	@Inject
+	private CETDeployer _cetDeployer;
 
-		@Inject
-		private CETFactory _cetFactory;
+	@Inject
+	private CETFactory _cetFactory;
 
-		private ClientExtensionEntry _clientExtensionEntry;
+	private ClientExtensionEntry _clientExtensionEntry;
 
-		@Inject
-		private ClientExtensionEntryLocalService _clientExtensionEntryLocalService;
+	@Inject
+	private ClientExtensionEntryLocalService _clientExtensionEntryLocalService;
 
 }

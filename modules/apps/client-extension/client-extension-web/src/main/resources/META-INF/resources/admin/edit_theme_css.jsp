@@ -29,21 +29,23 @@ ThemeCSSCET themeCSSCET = editClientExtensionEntryDisplayContext.getCET();
 	</div>
 </aui:field-wrapper>
 
-<aui:field-wrapper cssClass="form-group">
-	<react:component
-		module="{FileEntryPicker} from client-extension-web"
-		props='<%=
-			HashMapBuilder.<String, Object>put(
-				"companyId", themeCSSCET.getCompanyId()
-			).put(
-				"externalReferenceCode", themeCSSCET.getExternalReferenceCode()
-			).put(
-				"frontendTokenDefinition", themeCSSCET.getFrontendTokenDefinition()
-			).put(
-				"frontendTokenDefinitionFileName", themeCSSCET.getFrontendTokenDefinitionFileName()
-			).put(
-				"namespace", liferayPortletResponse.getNamespace()
-			).build()
-		%>'
-	/>
-</aui:field-wrapper>
+<c:if test='<%= FeatureFlagManagerUtil.isEnabled("LPD-10773") %>'>
+	<aui:field-wrapper cssClass="form-group">
+		<react:component
+			module="{FileEntryPicker} from client-extension-web"
+			props='<%=
+				HashMapBuilder.<String, Object>put(
+					"companyId", themeCSSCET.getCompanyId()
+				).put(
+					"externalReferenceCode", themeCSSCET.getExternalReferenceCode()
+				).put(
+					"frontendTokenDefinition", themeCSSCET.getFrontendTokenDefinition()
+				).put(
+					"frontendTokenDefinitionFileName", themeCSSCET.getFrontendTokenDefinitionFileName()
+				).put(
+					"namespace", liferayPortletResponse.getNamespace()
+				).build()
+			%>'
+		/>
+	</aui:field-wrapper>
+</c:if>
