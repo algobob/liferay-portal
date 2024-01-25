@@ -9,6 +9,7 @@ import com.liferay.frontend.token.definition.FrontendTokenDefinition;
 import com.liferay.frontend.token.definition.internal.FrontendTokenDefinitionImpl;
 import com.liferay.frontend.token.definition.internal.validator.FrontendTokenDefinitionValidator;
 import com.liferay.portal.json.validator.JSONValidatorException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.language.Language;
@@ -66,6 +67,11 @@ public class FrontendTokenDefinitionApplication extends Application {
 	@POST
 	public Response validateFrontendTokenDefinitionFile(
 		@Context HttpServletRequest httpServletRequest) {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-10773")) {
+			return Response.serverError(
+			).build();
+		}
 
 		UploadServletRequest uploadServletRequest =
 			_portal.getUploadServletRequest(httpServletRequest);

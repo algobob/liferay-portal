@@ -9,6 +9,7 @@ import com.liferay.client.extension.exception.ClientExtensionEntryTypeSettingsEx
 import com.liferay.client.extension.type.ThemeCSSCET;
 import com.liferay.client.extension.type.internal.ThemeCSSCETImpl;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -92,6 +93,10 @@ public class ThemeCSSCETImplFactoryImpl
 			throw new ClientExtensionEntryTypeSettingsException(
 				"Invalid Main CSS URL: " + mainURL, "main-css-url-x-is-invalid",
 				mainURL);
+		}
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-10773")) {
+			return;
 		}
 
 		String frontendTokenDefinitionString =

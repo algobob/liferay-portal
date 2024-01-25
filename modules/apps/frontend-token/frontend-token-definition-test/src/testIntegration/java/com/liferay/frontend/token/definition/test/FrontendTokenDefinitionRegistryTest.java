@@ -16,6 +16,7 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
@@ -31,6 +32,7 @@ import org.junit.runner.RunWith;
  * @author Anderson Luiz
  * @author Thiago Buarque
  */
+@FeatureFlags("LPD-10773")
 @RunWith(Arquillian.class)
 public class FrontendTokenDefinitionRegistryTest {
 
