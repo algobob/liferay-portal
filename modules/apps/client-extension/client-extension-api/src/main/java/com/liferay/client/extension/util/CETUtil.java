@@ -5,13 +5,35 @@
 
 package com.liferay.client.extension.util;
 
+import com.liferay.client.extension.constants.ClientExtensionEntryConstants;
+import com.liferay.client.extension.model.ClientExtensionEntryRel;
+import com.liferay.client.extension.service.ClientExtensionEntryRelLocalServiceUtil;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.model.LayoutSet;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 /**
  * @author Binh Tran
  */
 public class CETUtil {
+
+	public static String getThemeCSSCETExternalReferenceCode(
+		LayoutSet layoutSet) {
+
+		ClientExtensionEntryRel clientExtensionEntryRel =
+			ClientExtensionEntryRelLocalServiceUtil.
+				fetchClientExtensionEntryRel(
+					PortalUtil.getClassNameId(LayoutSet.class),
+					layoutSet.getLayoutSetId(),
+					ClientExtensionEntryConstants.TYPE_THEME_CSS);
+
+		if (clientExtensionEntryRel != null) {
+			return clientExtensionEntryRel.getCETExternalReferenceCode();
+		}
+
+		return null;
+	}
 
 	public static String normalizeExternalReferenceCodeForPortletId(
 		String externalReferenceCode) {
