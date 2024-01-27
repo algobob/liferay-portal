@@ -5,6 +5,7 @@
 
 package com.liferay.layout.taglib.internal.servlet;
 
+import com.liferay.client.extension.util.CETUtil;
 import com.liferay.frontend.token.definition.FrontendToken;
 import com.liferay.frontend.token.definition.FrontendTokenDefinition;
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
@@ -285,6 +286,8 @@ public class LayoutStructureCommonStylesCSSServlet extends HttpServlet {
 
 		FrontendTokenDefinition frontendTokenDefinition =
 			frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
+				layoutSet.getCompanyId(),
+				CETUtil.getThemeCSSCETExternalReferenceCode(layoutSet),
 				layoutSet.getThemeId());
 
 		if (frontendTokenDefinition == null) {

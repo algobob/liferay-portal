@@ -5,6 +5,7 @@
 
 package com.liferay.fragment.internal.util.configuration;
 
+import com.liferay.client.extension.util.CETUtil;
 import com.liferay.fragment.constants.FragmentConfigurationFieldDataType;
 import com.liferay.fragment.entry.processor.constants.FragmentEntryProcessorConstants;
 import com.liferay.fragment.util.configuration.FragmentConfigurationField;
@@ -412,6 +413,8 @@ public class FragmentEntryConfigurationParserImpl
 
 		FrontendTokenDefinition frontendTokenDefinition =
 			_frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
+				layoutSet.getCompanyId(),
+				CETUtil.getThemeCSSCETExternalReferenceCode(layoutSet),
 				layoutSet.getThemeId());
 
 		if (frontendTokenDefinition == null) {

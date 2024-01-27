@@ -5,6 +5,7 @@
 
 package com.liferay.style.book.web.internal.portlet.action;
 
+import com.liferay.client.extension.util.CETUtil;
 import com.liferay.frontend.token.definition.FrontendToken;
 import com.liferay.frontend.token.definition.FrontendTokenDefinition;
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
@@ -107,6 +108,8 @@ public class ImportStyleBookEntriesMVCActionCommand
 
 			FrontendTokenDefinition frontendTokenDefinition =
 				_frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
+					layoutSet.getCompanyId(),
+					CETUtil.getThemeCSSCETExternalReferenceCode(layoutSet),
 					layoutSet.getThemeId());
 
 			if (frontendTokenDefinition != null) {

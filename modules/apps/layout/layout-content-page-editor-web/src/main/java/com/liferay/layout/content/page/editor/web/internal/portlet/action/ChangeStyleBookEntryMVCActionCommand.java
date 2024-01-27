@@ -5,6 +5,7 @@
 
 package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 
+import com.liferay.client.extension.util.CETUtil;
 import com.liferay.frontend.token.definition.FrontendTokenDefinition;
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
 import com.liferay.layout.constants.LayoutTypeSettingsConstants;
@@ -87,6 +88,8 @@ public class ChangeStyleBookEntryMVCActionCommand
 
 		FrontendTokenDefinition frontendTokenDefinition =
 			_frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
+				layoutSet.getCompanyId(),
+				CETUtil.getThemeCSSCETExternalReferenceCode(layoutSet),
 				layoutSet.getThemeId());
 
 		StyleBookEntry styleBookEntry = null;

@@ -7,6 +7,7 @@ package com.liferay.layout.content.page.editor.web.internal.display.context;
 
 import com.liferay.asset.categories.item.selector.AssetCategoryTreeNodeItemSelectorReturnType;
 import com.liferay.asset.categories.item.selector.criterion.AssetCategoryTreeNodeItemSelectorCriterion;
+import com.liferay.client.extension.util.CETUtil;
 import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.fragment.model.FragmentComposition;
 import com.liferay.fragment.model.FragmentEntry;
@@ -389,7 +390,11 @@ public class ContentPageEditorDisplayContext {
 
 					FrontendTokenDefinition frontendTokenDefinition =
 						_frontendTokenDefinitionRegistry.
-							getFrontendTokenDefinition(layoutSet.getThemeId());
+							getFrontendTokenDefinition(
+								layoutSet.getCompanyId(),
+								CETUtil.getThemeCSSCETExternalReferenceCode(
+									layoutSet),
+								layoutSet.getThemeId());
 
 					if (frontendTokenDefinition == null) {
 						return _jsonFactory.createJSONObject();
