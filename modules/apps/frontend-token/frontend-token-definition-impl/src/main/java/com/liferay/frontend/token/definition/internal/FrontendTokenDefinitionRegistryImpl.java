@@ -39,9 +39,9 @@ public class FrontendTokenDefinitionRegistryImpl
 		long companyId, String externalReferenceCode, String themeId) {
 
 		if (FeatureFlagManagerUtil.isEnabled("LPD-10773") &&
-			externalReferenceCode != null) {
+			(externalReferenceCode != null)) {
 
-			FrontendTokenDefinition frontendTokenDefinition =
+			FrontendTokenDefinition frontendTokenDefinition  =
 				_frontendTokenDefinitionManager.getFrontendTokenDefinition(
 					companyId, externalReferenceCode);
 
@@ -56,17 +56,17 @@ public class FrontendTokenDefinitionRegistryImpl
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_frontendTokenDefinitionManager = new FrontendTokenDefinitionManager(
-				jsonFactory, new DCLSingleton<>(), new ConcurrentHashMap<>(),
-				new ConcurrentHashMap<>());
+			new ConcurrentHashMap<>(), jsonFactory, new ConcurrentHashMap<>(),
+			new DCLSingleton<>());
 
 		_bundleTracker = new BundleTracker<>(
 			bundleContext, Bundle.ACTIVE,
-			new ThemeBundleTrackerCustomizer(
+			new ThemeTrackerCustomizer(
 				_frontendTokenDefinitionManager, portal));
 
 		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
 			bundleContext, ThemeCSSCET.class, "external.reference.code",
-			new ThemeClientExtensionServiceTracker(
+			new ThemeCSSClientExtensionServiceTracker(
 				bundleContext, _frontendTokenDefinitionManager));
 	}
 

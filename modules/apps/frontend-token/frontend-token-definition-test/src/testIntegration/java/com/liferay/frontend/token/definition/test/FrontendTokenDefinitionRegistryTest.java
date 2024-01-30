@@ -25,6 +25,11 @@ import com.liferay.portal.kernel.util.URLUtil;
 import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+
+import java.net.URL;
+
+import java.util.ArrayList;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,10 +37,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Locale;
 
 /**
  * @author Anderson Luiz
@@ -50,12 +51,15 @@ public class FrontendTokenDefinitionRegistryTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new LiferayIntegrationTestRule();
 
-	private String _frontendTokenDefinitionJson;
-
 	@Before
 	public void setUp() throws Exception {
-		URL url = getClass().getResource("dependencies/frontend-token-definition.json");
-		_frontendTokenDefinitionJson = JSONFactoryUtil.createJSONObject(URLUtil.toString(url)).toString();
+		URL url = getClass().getResource(
+			"dependencies/frontend-token-definition.json");
+
+		_frontendTokenDefinitionJSON = JSONFactoryUtil.createJSONObject(
+			URLUtil.toString(url)
+		).toString();
+
 		_user = UserTestUtil.addUser();
 
 		_clientExtensionEntry =
@@ -64,8 +68,8 @@ public class FrontendTokenDefinitionRegistryTest {
 				HashMapBuilder.put(
 					LocaleUtil.getDefault(), "Client Extension Name"
 				).build(),
-
-				"", "", ClientExtensionEntryConstants.TYPE_THEME_CSS, "frontendTokenDefinition="+_frontendTokenDefinitionJson);
+				"", "", ClientExtensionEntryConstants.TYPE_THEME_CSS,
+				"frontendTokenDefinition=" + _frontendTokenDefinitionJSON);
 	}
 
 	@After
@@ -75,42 +79,96 @@ public class FrontendTokenDefinitionRegistryTest {
 	}
 
 	@Test
-	public void testGetClientExtensionFrontendTokenDefinition() throws JSONException {
-		FrontendTokenDefinition frontendTokenDefinition = _frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
-	_user.getCompanyId(), "any-external-reference", "any-theme");
+	public void testGetCETThemeCSSFrontendTokenDefinition()
+		throws JSONException {
 
-		_assertFrontendTokenDefinition(frontendTokenDefinition);
+		_assertFrontendTokenDefinition(
+			_frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
+				_user.getCompanyId(), "any-external-reference", "any-theme"));
 	}
 
 	@Test
-	public void testGetWorkspaceFrontendTokenDefinition() throws JSONException {
-		FrontendTokenDefinition frontendTokenDefinition = _frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
-				-1, null, "classic");
-
-		_assertFrontendTokenDefinition(frontendTokenDefinition);
+	public void testGetThemeFrontendTokenDefinition() throws JSONException {
+		_assertFrontendTokenDefinition(
+			_frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
+				-1, null, "classic"));
 	}
 
-	private void _assertFrontendTokenDefinition(FrontendTokenDefinition frontendTokenDefinition) throws JSONException {
+	private void _assertFrontendTokenDefinition(
+			FrontendTokenDefinition frontendTokenDefinition)
+		throws JSONException {
 
-		JSONObject expectedFrontendTokenDefinitionAsJson = JSONFactoryUtil.createJSONObject(_frontendTokenDefinitionJson);
-		JSONObject expectedToken = expectedFrontendTokenDefinitionAsJson.getJSONArray("frontendTokenCategories")
-				.getJSONObject(0).getJSONArray("frontendTokenSets").getJSONObject(0)
-				.getJSONArray("frontendTokens").getJSONObject(0);
-		FrontendToken token = new ArrayList<>(frontendTokenDefinition.getFrontendTokens()).get(0);
+		JSONObject expectedFrontendTokenDefinitionJSONObject =
+			JSONFactoryUtil.createJSONObject(_frontendTokenDefinitionJSON);
 
-		Assert.assertEquals(1, frontendTokenDefinition.getFrontendTokenCategories().size());
-		Assert.assertEquals(1, frontendTokenDefinition.getFrontendTokenSets().size());
-		Assert.assertEquals(1, frontendTokenDefinition.getFrontendTokens().size());
-		Assert.assertEquals(1, frontendTokenDefinition.getFrontendTokenMappings().size());
-		Assert.assertEquals(expectedToken.getString("defaultValue"), token.getDefaultValue().toString());
-		Assert.assertEquals(expectedToken.getString("name"), token.getName());
-		Assert.assertEquals(expectedToken.getString("type"), token.getType().getValue());
-		Assert.assertEquals(expectedToken.getJSONArray("mappings").get(0).toString(), new ArrayList<>(token.getFrontendTokenMappings()).get(0).getJSONObject(Locale.ENGLISH).toString());
+		JSONObject expectedTokenJSONObject =
+			expectedFrontendTokenDefinitionJSONObject.getJSONArray(
+				"frontendTokenCategories"
+			).getJSONObject(
+				0
+			).getJSONArray(
+				"frontendTokenSets"
+			).getJSONObject(
+				0
+			).getJSONArray(
+				"frontendTokens"
+			).getJSONObject(
+				0
+			);
+
+		FrontendToken token = new ArrayList<>(
+			frontendTokenDefinition.getFrontendTokens()
+		).get(
+			0
+		);
+
+		Assert.assertEquals(
+			1,
+			frontendTokenDefinition.getFrontendTokenCategories(
+			).size());
+		Assert.assertEquals(
+			1,
+			frontendTokenDefinition.getFrontendTokenSets(
+			).size());
+		Assert.assertEquals(
+			1,
+			frontendTokenDefinition.getFrontendTokens(
+			).size());
+		Assert.assertEquals(
+			1,
+			frontendTokenDefinition.getFrontendTokenMappings(
+			).size());
+		Assert.assertEquals(
+			expectedTokenJSONObject.getString("defaultValue"),
+			token.getDefaultValue(
+			).toString());
+		Assert.assertEquals(
+			expectedTokenJSONObject.getString("name"), token.getName());
+		Assert.assertEquals(
+			expectedTokenJSONObject.getString("type"),
+			token.getType(
+			).getValue());
+		Assert.assertEquals(
+			expectedTokenJSONObject.getJSONArray(
+				"mappings"
+			).get(
+				0
+			).toString(),
+			new ArrayList<>(
+				token.getFrontendTokenMappings()
+			).get(
+				0
+			).getJSONObject(
+				LocaleUtil.ENGLISH
+			).toString());
 	}
+
 	private ClientExtensionEntry _clientExtensionEntry;
 
 	@Inject
 	private ClientExtensionEntryLocalService _clientExtensionEntryLocalService;
+
+	private String _frontendTokenDefinitionJSON;
 
 	@Inject
 	private FrontendTokenDefinitionRegistry _frontendTokenDefinitionRegistry;
