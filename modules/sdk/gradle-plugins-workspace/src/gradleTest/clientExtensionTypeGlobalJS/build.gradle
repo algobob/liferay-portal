@@ -1,0 +1,17 @@
+task runGradleTest
+
+runGradleTest {
+	dependsOn ":global-js-client-extension:deploy"
+
+	doLast {
+		Project clientExtensionProject = project ":global-js-client-extension"
+
+		File clientExtensionBuildDir = new File(clientExtensionProject.buildDir, "liferay-client-extension-build")
+
+		File clientExtensionConfigJSONFile = new File(clientExtensionBuildDir, "global-js-client-extension.client-extension-config.json")
+
+		assert clientExtensionConfigJSONFile.exists()
+
+		assert clientExtensionConfigJSONFile.text.contains("scriptElementAttributes=async=false\\ndata-bool-false=false\\ndata-bool-true=false\\ndata-empty=\\\"\\\"\\ndata-str-false=\\\"false\\\"\\ndata-str-true=\\\"true\\\"\\ndefer=true\\nnomodule=false")
+	}
+}
