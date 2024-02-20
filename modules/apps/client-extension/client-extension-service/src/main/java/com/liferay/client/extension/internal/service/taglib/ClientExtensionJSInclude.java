@@ -12,6 +12,7 @@ import com.liferay.client.extension.type.GlobalJSCET;
 import com.liferay.client.extension.type.manager.CETManager;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.content.security.policy.ContentSecurityPolicyNonceProviderUtil;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
@@ -94,10 +95,30 @@ public class ClientExtensionJSInclude {
 				printWriter.print(StringPool.SPACE);
 			}
 
+			if (FeatureFlagManagerUtil.isEnabled("LPD-10981")) {
+				printWriter.print(StringPool.SPACE);
+				printWriter.print(
+					_mapScriptElementAttributesToString(
+						globalJSCET.getScriptElementAttributes()));
+			}
+
 			printWriter.print(" data-senna-track=\"temporary\" src=\"");
 			printWriter.print(globalJSCET.getURL());
 			printWriter.print("\" type=\"text/javascript\"></script>");
 		}
+	}
+
+	private String _mapScriptElementAttributesToString(
+		String scriptElementAttributes) {
+
+		scriptElementAttributes = scriptElementAttributes.replaceAll(
+			StringPool.NEW_LINE, StringPool.SPACE);
+
+		scriptElementAttributes = scriptElementAttributes.replaceAll(
+			"([\\w-]+)=(true)", "$1");
+
+		return scriptElementAttributes.replaceAll(
+			"([\\w-]+)=(false)", StringPool.BLANK);
 	}
 
 	private final CETManager _cetManager;
