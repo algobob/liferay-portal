@@ -217,6 +217,14 @@
 					"allOf": [
 						{
 							"$ref": "#/definitions/propertySets/properties/url"
+						},
+						{
+							"properties": {
+								"scriptElementAttributes": {
+									"type": "object"
+								}
+							},
+							"type": "object"
 						}
 					],
 					"description": "Description for globalJS"
