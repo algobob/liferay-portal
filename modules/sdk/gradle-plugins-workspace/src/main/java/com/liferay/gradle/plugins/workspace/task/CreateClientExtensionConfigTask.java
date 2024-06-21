@@ -50,6 +50,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
@@ -147,7 +148,6 @@ public class CreateClientExtensionConfigTask extends DefaultTask {
 
 			if (Objects.equals(
 					clientExtension.getClassification(), "frontend")) {
-
 				_expandWildcards(clientExtension.typeSettings);
 
 				pluginPackageProperties.put(
@@ -387,6 +387,10 @@ public class CreateClientExtensionConfigTask extends DefaultTask {
 		Path staticDirPath = staticDir.toPath();
 
 		for (Map.Entry<String, Object> entry : typeSettings.entrySet()) {
+			if (!StringUtils.containsIgnoreCase(entry.getKey(), "url")) {
+				return ;
+			}
+
 			Object currentValue = entry.getValue();
 
 			if ((currentValue instanceof String) &&

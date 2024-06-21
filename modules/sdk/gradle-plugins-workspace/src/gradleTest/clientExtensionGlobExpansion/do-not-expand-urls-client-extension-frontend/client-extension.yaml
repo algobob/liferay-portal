@@ -1,0 +1,5 @@
+do-not-expand-urls-client-extension-frontend:
+    doNotExpand:
+        - "*.txt"
+    name: Sample Theme Css
+    type: themeCSS

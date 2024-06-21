@@ -29,8 +29,10 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.product.navigation.applications.menu.configuration.ApplicationsMenuInstanceConfiguration;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.portlet.PortletRequest;
 
@@ -56,24 +58,23 @@ public class ProductMenuDisplayContext {
 			return _childPanelCategories;
 		}
 
-		_childPanelCategories =
-			PanelCategoryRegistryUtil.getChildPanelCategories(
-				PanelCategoryKeys.ROOT, _themeDisplay.getPermissionChecker(),
-				_themeDisplay.getScopeGroup());
+		_childPanelCategories = _panelCategoryHelper.getPanelCategories(
+			PanelCategoryKeys.ROOT, _themeDisplay);
 
 		if (_isEnableApplicationsMenu()) {
 			return _childPanelCategories;
 		}
 
-		List<PanelCategory> applicationsMenuChildPanelCategories =
-			PanelCategoryRegistryUtil.getChildPanelCategories(
-				PanelCategoryKeys.APPLICATIONS_MENU,
-				_themeDisplay.getPermissionChecker(),
-				_themeDisplay.getScopeGroup());
+		List<PanelCategory> productMenuPanelCategories =
+			_panelCategoryHelper.getPanelCategories(
+				PanelCategoryKeys.APPLICATIONS_MENU, _themeDisplay);
 
-		Collections.reverse(applicationsMenuChildPanelCategories);
+		Collections.reverse(productMenuPanelCategories);
 
-		_childPanelCategories.addAll(0, applicationsMenuChildPanelCategories);
+		List<PanelCategory> panelCategoriesWithPanelApps =
+			_filterPanelCategoriesWithPanelApps(productMenuPanelCategories);
+
+		_childPanelCategories.addAll(0, panelCategoriesWithPanelApps);
 
 		return _childPanelCategories;
 	}
@@ -194,6 +195,21 @@ public class ProductMenuDisplayContext {
 		}
 
 		return true;
+	}
+
+	private List<PanelCategory> _filterPanelCategoriesWithPanelApps(
+		List<PanelCategory> panels) {
+
+		List<PanelCategory> filteredPanels =
+			new ArrayList<>();
+
+		for (PanelCategory panelCategory : panels) {
+			if (!_panelCategoryHelper.getAllPanelApps(panelCategory.getKey()).isEmpty()) {
+				filteredPanels.add(panelCategory);
+			}
+		}
+
+		return filteredPanels;
 	}
 
 	private boolean _hasAdministrationPortletPermission() throws Exception {

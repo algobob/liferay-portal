@@ -3,10 +3,14 @@ import com.liferay.gradle.util.OSDetector
 task runGradleTest
 
 runGradleTest {
-	dependsOn ":do-not-expand-urls-client-extension:createClientExtensionConfig", ":expand-urls-client-extension:createClientExtensionConfig", ":expand-urls-with-parameters-client-extension:createClientExtensionConfig"
+	dependsOn ":do-not-expand-urls-client-extension:createClientExtensionConfig",":do-not-expand-urls-client-extension-frontend:createClientExtensionConfig", ":expand-urls-client-extension:createClientExtensionConfig", ":expand-urls-with-parameters-client-extension:createClientExtensionConfig"
 
 	doLast {
 		_testClientExtensionConfig("do-not-expand-urls-client-extension") {
+			assert it.text.contains('"doNotExpand=*.txt"') : "Wildcards should only expand for frontend client extensions."
+		}
+
+		_testClientExtensionConfig("do-not-expand-urls-client-extension-frontend") {
 			assert it.text.contains('"doNotExpand=*.txt"') : "Wildcards should only expand for frontend client extensions."
 		}
 

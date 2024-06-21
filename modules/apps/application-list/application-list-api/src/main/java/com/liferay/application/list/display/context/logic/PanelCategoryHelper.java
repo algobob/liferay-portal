@@ -13,6 +13,7 @@ import com.liferay.application.list.util.PanelCategoryRegistryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -169,6 +170,13 @@ public class PanelCategoryHelper {
 		}
 
 		return false;
+	}
+
+	public List<PanelCategory> getPanelCategories(
+		String panelKey, ThemeDisplay themeDisplay) {
+
+		return PanelCategoryRegistryUtil.getChildPanelCategories(
+			panelKey, themeDisplay.getPermissionChecker(), themeDisplay.getScopeGroup());
 	}
 
 	private final PanelAppRegistry _panelAppRegistry;

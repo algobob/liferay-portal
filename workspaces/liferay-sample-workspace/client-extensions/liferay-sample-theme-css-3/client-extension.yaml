@@ -3,7 +3,8 @@ assemble:
       into: static/img
 liferay-sample-theme-css-3:
     clayURL: css/clay.css
-    frontendTokenDefinitionJSON: src/frontend-token-definition.json
+    frontendTokenDefinitionJSON: src/frontend-token-definition-old.json
     mainURL: css/main.css
-    name: Liferay Sample Theme CSS 3
+    name: Liferay-Sample Theme CSS 3
     type: themeCSS
+    creu: abc*-123*
