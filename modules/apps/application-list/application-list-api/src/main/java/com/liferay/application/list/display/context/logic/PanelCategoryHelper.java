@@ -80,6 +80,14 @@ public class PanelCategoryHelper {
 		return panelApps;
 	}
 
+	public List<PanelCategory> getChildPanelCategories(
+		String panelKey, ThemeDisplay themeDisplay) {
+
+		return PanelCategoryRegistryUtil.getChildPanelCategories(
+			panelKey, themeDisplay.getPermissionChecker(),
+			themeDisplay.getScopeGroup());
+	}
+
 	public String getFirstPortletId(
 		String panelCategoryKey, PermissionChecker permissionChecker,
 		Group group) {
@@ -123,6 +131,14 @@ public class PanelCategoryHelper {
 			panelCategoryKey, permissionChecker, group, user);
 
 		return count;
+	}
+
+	public List<PanelCategory> getPanelCategories(
+		String panelKey, ThemeDisplay themeDisplay) {
+
+		return PanelCategoryRegistryUtil.getChildPanelCategories(
+			panelKey, themeDisplay.getPermissionChecker(),
+			themeDisplay.getScopeGroup());
 	}
 
 	public boolean hasPanelApp(String portletId) {
@@ -170,13 +186,6 @@ public class PanelCategoryHelper {
 		}
 
 		return false;
-	}
-
-	public List<PanelCategory> getPanelCategories(
-		String panelKey, ThemeDisplay themeDisplay) {
-
-		return PanelCategoryRegistryUtil.getChildPanelCategories(
-			panelKey, themeDisplay.getPermissionChecker(), themeDisplay.getScopeGroup());
 	}
 
 	private final PanelAppRegistry _panelAppRegistry;

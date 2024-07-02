@@ -46,6 +46,7 @@ import javax.portlet.ResourceResponse;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -62,13 +63,15 @@ import org.osgi.service.component.annotations.Reference;
 public class ApplicationsMenuPanelAppsMVCResourceCommand
 	extends BaseMVCResourceCommand {
 
+	@Activate
+	protected void activate() {
+		_panelCategoryHelper = new PanelCategoryHelper(_panelAppRegistry);
+	}
+
 	@Override
 	protected void doServeResource(
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
 		throws Exception {
-		if (_panelCategoryHelper == null) {
-			_panelCategoryHelper = new PanelCategoryHelper(_panelAppRegistry);
-		}
 
 		JSONPortletResponseUtil.writeJSON(
 			resourceRequest, resourceResponse,
@@ -106,7 +109,8 @@ public class ApplicationsMenuPanelAppsMVCResourceCommand
 		JSONArray childPanelCategoriesJSONArray =
 			_jsonFactory.createJSONArray();
 
-		List<PanelCategory> childPanelCategories = _panelCategoryHelper.getPanelCategories(key, themeDisplay);
+		List<PanelCategory> childPanelCategories =
+			_panelCategoryHelper.getChildPanelCategories(key, themeDisplay);
 
 		for (PanelCategory childPanelCategory : childPanelCategories) {
 			JSONArray panelAppsJSONArray = _getPanelAppsJSONArray(
@@ -190,7 +194,9 @@ public class ApplicationsMenuPanelAppsMVCResourceCommand
 
 		JSONArray panelCategoriesJSONArray = _jsonFactory.createJSONArray();
 
-		List<PanelCategory> applicationsMenuPanelCategories = _panelCategoryHelper.getPanelCategories(PanelCategoryKeys.APPLICATIONS_MENU, themeDisplay);
+		List<PanelCategory> applicationsMenuPanelCategories =
+			_panelCategoryHelper.getChildPanelCategories(
+				PanelCategoryKeys.APPLICATIONS_MENU, themeDisplay);
 
 		for (PanelCategory panelCategory : applicationsMenuPanelCategories) {
 			JSONArray childCategoriesJSONArray =
@@ -366,11 +372,12 @@ public class ApplicationsMenuPanelAppsMVCResourceCommand
 	@Reference
 	private PanelAppRegistry _panelAppRegistry;
 
+	private PanelCategoryHelper _panelCategoryHelper;
+
 	@Reference
 	private Portal _portal;
 
 	@Reference
 	private RecentGroupManager _recentGroupManager;
 
-	private PanelCategoryHelper _panelCategoryHelper;
 }
