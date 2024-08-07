@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 
 import com.liferay.gradle.plugins.workspace.configurator.ClientExtensionProjectConfigurator;
 import com.liferay.gradle.plugins.workspace.internal.client.extension.ClientExtension;
+import com.liferay.gradle.plugins.workspace.internal.client.extension.ClientExtensionHelper;
 import com.liferay.gradle.plugins.workspace.internal.util.GradleUtil;
 import com.liferay.gradle.plugins.workspace.internal.util.JsonNodeUtil;
 import com.liferay.gradle.plugins.workspace.internal.util.StringUtil;
@@ -75,6 +76,8 @@ import org.gradle.api.tasks.TaskOutputs;
  */
 public class CreateClientExtensionConfigTask extends DefaultTask {
 
+	private final ClientExtensionHelper _clientExtensionHelper;
+
 	public CreateClientExtensionConfigTask() {
 		_clientExtensionConfigFile = _addTaskOutputFile(
 			_project.getName() + ".client-extension-config.json");
@@ -83,6 +86,7 @@ public class CreateClientExtensionConfigTask extends DefaultTask {
 		_lcpJsonFile = _addTaskOutputFile("LCP.json");
 		_pluginPackagePropertiesFile = _addTaskOutputFile(
 			"WEB-INF/liferay-plugin-package.properties");
+		_clientExtensionHelper = new ClientExtensionHelper();
 	}
 
 	public void addClientExtension(ClientExtension clientExtension) {
@@ -150,7 +154,7 @@ public class CreateClientExtensionConfigTask extends DefaultTask {
 			if (Objects.equals(
 					clientExtension.getClassification(), "frontend")) {
 
-				_expandWildcards(clientExtension.typeSettings);
+				_clientExtensionHelper.expandWildcards(_getStaticDirPath(), clientExtension.typeSettings);
 
 				pluginPackageProperties.put(
 					"Liferay-Client-Extension-Frontend", "static/");
@@ -375,7 +379,7 @@ public class CreateClientExtensionConfigTask extends DefaultTask {
 		}
 	}
 
-	private void _expandWildcards(Map<String, Object> typeSettings) {
+	private Path _getStaticDirPath() {
 		File clientExtensionBuildDir = new File(
 			_project.getBuildDir(),
 			ClientExtensionProjectConfigurator.CLIENT_EXTENSION_BUILD_DIR);
@@ -383,40 +387,10 @@ public class CreateClientExtensionConfigTask extends DefaultTask {
 		File staticDir = new File(clientExtensionBuildDir, "static");
 
 		if (!staticDir.exists()) {
-			return;
+			return null;
 		}
 
-		Path staticDirPath = staticDir.toPath();
-
-		for (Map.Entry<String, Object> entry : typeSettings.entrySet()) {
-			Object currentValue = entry.getValue();
-
-			if (currentValue instanceof String) {
-				String currentValueString = (String)currentValue;
-
-				if (StringUtils.containsIgnoreCase(entry.getKey(), "url") &&
-					_isWildcardValue(currentValueString)) {
-
-					entry.setValue(
-						_getMatchingPaths(staticDirPath, (String)currentValue));
-				}
-			}
-
-			if (currentValue instanceof List) {
-				List<String> values = new ArrayList<>();
-
-				for (String value : (List<String>)currentValue) {
-					if (_isWildcardValue(value)) {
-						values.addAll(_getMatchingPaths(staticDirPath, value));
-					}
-					else {
-						values.add(value);
-					}
-				}
-
-				entry.setValue(values);
-			}
-		}
+		return staticDir.toPath();
 	}
 
 	private String _getFileContent(File file) {
@@ -432,7 +406,6 @@ public class CreateClientExtensionConfigTask extends DefaultTask {
 
 		return null;
 	}
-
 	private String _getIdOrBatchType(ClientExtension clientExtension) {
 		String id = clientExtension.id;
 
@@ -504,47 +477,6 @@ public class CreateClientExtensionConfigTask extends DefaultTask {
 		}
 	}
 
-	private List<String> _getMatchingPaths(Path basePath, String glob) {
-		FileSystem fileSystem = basePath.getFileSystem();
-
-		AtomicReference<String> queryStringAtomicReference =
-			new AtomicReference<>("");
-
-		int index = glob.indexOf("?");
-
-		if (index != -1) {
-			queryStringAtomicReference.set(glob.substring(index));
-
-			glob = glob.substring(0, index);
-		}
-
-		PathMatcher pathMatcher = fileSystem.getPathMatcher("glob:" + glob);
-
-		try (Stream<Path> files = Files.walk(basePath)) {
-			List<String> matchingPaths = files.map(
-				basePath::relativize
-			).filter(
-				pathMatcher::matches
-			).map(
-				path -> path + queryStringAtomicReference.get()
-			).collect(
-				Collectors.toList()
-			);
-
-			if (matchingPaths.isEmpty()) {
-				throw new GradleException(
-					"No paths matched the glob pattern \"" + glob + "\"");
-			}
-
-			Collections.sort(matchingPaths);
-
-			return matchingPaths;
-		}
-		catch (IOException ioException) {
-			throw new GradleException(
-				"Unable to expand wildcard paths", ioException);
-		}
-	}
 
 	private Properties _getPluginPackageProperties() {
 		Properties pluginPackageProperties = new Properties();
@@ -610,13 +542,6 @@ public class CreateClientExtensionConfigTask extends DefaultTask {
 		}
 	}
 
-	private boolean _isWildcardValue(String value) {
-		if (value.contains(StringUtil.STAR)) {
-			return true;
-		}
-
-		return false;
-	}
 
 	private void _mapGlobalJSScriptElementAttributesToJSONString(
 		ClientExtension clientExtension) {

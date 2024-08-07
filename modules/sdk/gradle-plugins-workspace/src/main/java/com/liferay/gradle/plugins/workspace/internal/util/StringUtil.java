@@ -5,6 +5,8 @@
 
 package com.liferay.gradle.plugins.workspace.internal.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -198,6 +200,10 @@ public class StringUtil {
 		Stream<String> stream = strings.stream();
 
 		return stream.collect(Collectors.joining(", "));
+	}
+
+	public static boolean containsIgnoreCase(String string, String searchString) {
+		return StringUtils.containsIgnoreCase(string, searchString);
 	}
 
 	private static final Pattern _camelCasePattern = Pattern.compile(

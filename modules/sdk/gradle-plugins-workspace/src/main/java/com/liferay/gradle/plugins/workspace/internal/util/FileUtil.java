@@ -9,15 +9,22 @@ import java.io.File;
 import java.io.IOException;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.gradle.api.GradleException;
 import org.gradle.api.UncheckedIOException;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.SourceDirectorySet;
@@ -152,6 +159,48 @@ public class FileUtil extends com.liferay.gradle.util.FileUtil {
 				}
 
 			});
+	}
+
+	public static List<String> getMatchingPaths(Path basePath, String glob) {
+		FileSystem fileSystem = basePath.getFileSystem();
+
+		AtomicReference<String> queryStringAtomicReference =
+			new AtomicReference<>("");
+
+		int index = glob.indexOf("?");
+
+		if (index != -1) {
+			queryStringAtomicReference.set(glob.substring(index));
+
+			glob = glob.substring(0, index);
+		}
+
+		PathMatcher pathMatcher = fileSystem.getPathMatcher("glob:" + glob);
+
+		try (Stream<Path> files = Files.walk(basePath)) {
+			List<String> matchingPaths = files.map(
+				basePath::relativize
+			).filter(
+				pathMatcher::matches
+			).map(
+				path -> path + queryStringAtomicReference.get()
+			).collect(
+				Collectors.toList()
+			);
+
+			if (matchingPaths.isEmpty()) {
+				throw new GradleException(
+					"No paths matched the glob pattern \"" + glob + "\"");
+			}
+
+			Collections.sort(matchingPaths);
+
+			return matchingPaths;
+		}
+		catch (IOException ioException) {
+			throw new GradleException(
+				"Unable to expand wildcard paths", ioException);
+		}
 	}
 
 }
