@@ -30,6 +30,9 @@ public interface CETManager {
 
 	public CET getCET(long companyId, String externalReferenceCode);
 
+	public List<CET> getCETs(long companyId, String type)
+		throws PortalException;
+
 	public List<CET> getCETs(
 			long companyId, String keywords, String type, Pagination pagination,
 			Sort sort)

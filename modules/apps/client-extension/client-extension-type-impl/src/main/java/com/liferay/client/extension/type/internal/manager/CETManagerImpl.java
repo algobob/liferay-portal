@@ -99,6 +99,15 @@ public class CETManagerImpl implements CETManager {
 	}
 
 	@Override
+	public List<CET> getCETs(long companyId, String type)
+		throws PortalException {
+
+		return ListUtil.subList(
+			_getCETs(companyId, null, type), QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS);
+	}
+
+	@Override
 	public List<CET> getCETs(
 			long companyId, String keywords, String type, Pagination pagination,
 			Sort sort)
