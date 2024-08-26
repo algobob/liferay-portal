@@ -66,6 +66,7 @@ page import="com.liferay.portal.kernel.util.WebKeys" %><%@
 page import="com.liferay.portal.model.impl.*" %><%@
 page import="com.liferay.portal.settings.configuration.admin.display.PortalSettingsConfigurationScreenContributor" %><%@
 page import="com.liferay.portal.settings.web.internal.constants.PortalSettingsWebKeys" %><%@
+page import="com.liferay.portal.settings.web.internal.display.context.InstanceSettingsDisplayContext" %><%@
 page import="com.liferay.portal.settings.web.internal.exception.RequiredLocaleException" %><%@
 page import="com.liferay.portal.util.PropsValues" %><%@
 page import="com.liferay.ratings.kernel.RatingsType" %><%@
