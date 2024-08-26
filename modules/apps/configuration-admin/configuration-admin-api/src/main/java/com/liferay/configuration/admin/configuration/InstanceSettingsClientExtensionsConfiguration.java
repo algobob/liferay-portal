@@ -13,7 +13,7 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
  * @author Anderson Luiz
  */
 @ExtendedObjectClassDefinition(
-	category = "instance-configuration", generateUI = true,
+	category = "instance-configuration", generateUI = false,
 	scope = ExtendedObjectClassDefinition.Scope.COMPANY
 )
 @Meta.OCD(
