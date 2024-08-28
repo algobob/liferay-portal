@@ -104,6 +104,9 @@ public class EditClientExtensionEntryDisplayContext<T extends CET> {
 		return BeanParamUtil.getString(_cet, _portletRequest, "name");
 	}
 
+	public Boolean isRestrictedToAdminPages() {
+		return BeanParamUtil.getBoolean(_cet, _portletRequest, "isRestrictedToAdminPages");
+	}
 	public List<SelectOption> getPortletCategoryNameSelectOptions(
 		String selectedPortletCategoryName) {
 

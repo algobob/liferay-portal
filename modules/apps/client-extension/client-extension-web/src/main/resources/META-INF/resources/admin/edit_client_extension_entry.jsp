@@ -93,6 +93,11 @@ renderResponse.setTitle(editClientExtensionEntryDisplayContext.getTitle());
 			>
 				<div class="panel-body">
 					<aui:field-wrapper cssClass="form-group">
+<aui:input label="is-restricted-to-admin-pages" name="isRestrictedToAdminPages" type="checkbox" value="<%= editClientExtensionEntryDisplayContext.isRestrictedToAdminPages() %>" />
+										<aui:select label="configuration-scope" name="scope">
+											<aui:option label="Instance" value="instance" />
+											<aui:option label="Site" value="site" />
+										</aui:select>
 						<aui:input label="source-code-url" name="sourceCodeURL" type="text" value="<%= editClientExtensionEntryDisplayContext.getSourceCodeURL() %>" />
 
 						<div class="form-text">

@@ -58,6 +58,10 @@ public class GlobalJSCETImplFactoryImpl
 			ParamUtil.getString(portletRequest, "scriptElementAttributesJSON")
 		).put(
 			"url", ParamUtil.getString(portletRequest, "url")
+		).put(
+			"restricted-to-admin-pages", ParamUtil.getBoolean(portletRequest, "isRestrictedToAdminPages")
+		).put(
+			"scope", ParamUtil.getString(portletRequest, "scope")
 		).build();
 	}
 
