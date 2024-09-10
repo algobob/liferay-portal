@@ -11,6 +11,7 @@ import com.liferay.client.extension.service.ClientExtensionEntryRelLocalService;
 import com.liferay.client.extension.type.ThemeCSSCET;
 import com.liferay.frontend.token.definition.FrontendTokenDefinition;
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
+import com.liferay.frontend.token.definition.internal.tracker.FrontendTokenDefinitionThemeBundleTracker;
 import com.liferay.frontend.token.definition.internal.validator.FrontendTokenDefinitionJSONValidator;
 import com.liferay.osgi.util.ServiceTrackerFactory;
 import com.liferay.petra.concurrent.DCLSingleton;
@@ -40,14 +41,12 @@ import java.util.regex.Pattern;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.util.tracker.BundleTracker;
-import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
@@ -71,7 +70,8 @@ public class FrontendTokenDefinitionRegistryImpl
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_bundleTracker = new BundleTracker<>(
-			bundleContext, Bundle.ACTIVE, _bundleTrackerCustomizer);
+			bundleContext, Bundle.ACTIVE,
+			_frontendTokenDefinitionThemeBundleTracker);
 
 		_serviceTracker = ServiceTrackerFactory.open(
 			bundleContext, ThemeCSSCET.class,
@@ -257,30 +257,24 @@ public class FrontendTokenDefinitionRegistryImpl
 		return clientExtensionEntryRel.getCETExternalReferenceCode();
 	}
 
+	private FrontendTokenDefinition _getClientExtensionFrontendTokenDefinition(
+		long companyId, String externalReferenceCode) {
+
+		Map<String, FrontendTokenDefinition> frontendTokenDefinitions =
+			_getFrontendTokenDefinitions(companyId);
+
+		return frontendTokenDefinitions.get(externalReferenceCode);
+	}
+
 	private FrontendTokenDefinition _getFrontendTokenDefinition(
 		long companyId, String externalReferenceCode, String themeId) {
 
 		if (externalReferenceCode != null) {
-			Map<String, FrontendTokenDefinition> frontendTokenDefinitions =
-				_getFrontendTokenDefinitions(companyId);
-
-			FrontendTokenDefinition frontendTokenDefinition =
-				frontendTokenDefinitions.get(externalReferenceCode);
-
-			if (frontendTokenDefinition != null) {
-				return frontendTokenDefinition;
-			}
+			return _getClientExtensionFrontendTokenDefinition(
+				companyId, externalReferenceCode);
 		}
 
-		Map<String, FrontendTokenDefinitionImpl> frontendTokenDefinitionImpls =
-			_frontendTokenDefinitionImplsDCLSingleton.getSingleton(
-				() -> {
-					_bundleTracker.open();
-
-					return _frontendTokenDefinitionImpls;
-				});
-
-		return frontendTokenDefinitionImpls.get(themeId);
+		return _getThemeFrontendTokenDefinition(themeId);
 	}
 
 	private String _getFrontendTokenDefinitionJSON(Bundle bundle) {
@@ -307,6 +301,21 @@ public class FrontendTokenDefinitionRegistryImpl
 			companyId, new ConcurrentHashMap<>());
 	}
 
+	private FrontendTokenDefinition _getThemeFrontendTokenDefinition(
+		String themeId) {
+
+		Map<String, FrontendTokenDefinitionImpl> frontendTokenDefinitionImpls =
+			_frontendTokenDefinitionImplsDCLSingleton.getSingleton(
+				() -> {
+					_bundleTracker.open();
+
+					return _frontendTokenDefinitionThemeBundleTracker.
+						getFrontendTokenDefinitions();
+				});
+
+		return frontendTokenDefinitionImpls.get(themeId);
+	}
+
 	private void _removedService(ThemeCSSCET themeCSSCET) {
 		Map<String, FrontendTokenDefinition> frontendTokenDefinitions =
 			_getFrontendTokenDefinitions(themeCSSCET.getCompanyId());
@@ -322,53 +331,10 @@ public class FrontendTokenDefinitionRegistryImpl
 
 	private BundleTracker<FrontendTokenDefinitionImpl> _bundleTracker;
 
-	private final BundleTrackerCustomizer<FrontendTokenDefinitionImpl>
-		_bundleTrackerCustomizer =
-			new BundleTrackerCustomizer<FrontendTokenDefinitionImpl>() {
-
-				@Override
-				public FrontendTokenDefinitionImpl addingBundle(
-					Bundle bundle, BundleEvent bundleEvent) {
-
-					FrontendTokenDefinitionImpl frontendTokenDefinitionImpl =
-						getFrontendTokenDefinitionImpl(bundle);
-
-					if ((frontendTokenDefinitionImpl != null) &&
-						(frontendTokenDefinitionImpl.getThemeId() != null)) {
-
-						_frontendTokenDefinitionImpls.put(
-							frontendTokenDefinitionImpl.getThemeId(),
-							frontendTokenDefinitionImpl);
-
-						return frontendTokenDefinitionImpl;
-					}
-
-					return null;
-				}
-
-				@Override
-				public void modifiedBundle(
-					Bundle bundle, BundleEvent bundleEvent,
-					FrontendTokenDefinitionImpl frontendTokenDefinitionImpl) {
-				}
-
-				@Override
-				public void removedBundle(
-					Bundle bundle, BundleEvent bundleEvent,
-					FrontendTokenDefinitionImpl frontendTokenDefinitionImpl) {
-
-					_frontendTokenDefinitionImpls.remove(
-						frontendTokenDefinitionImpl.getThemeId());
-				}
-
-			};
-
 	@Reference
 	private ClientExtensionEntryRelLocalService
 		_clientExtensionEntryRelLocalService;
 
-	private final Map<String, FrontendTokenDefinitionImpl>
-		_frontendTokenDefinitionImpls = new ConcurrentHashMap<>();
 	private final DCLSingleton<Map<String, FrontendTokenDefinitionImpl>>
 		_frontendTokenDefinitionImplsDCLSingleton = new DCLSingleton<>();
 	private final FrontendTokenDefinitionJSONValidator
@@ -376,6 +342,10 @@ public class FrontendTokenDefinitionRegistryImpl
 			new FrontendTokenDefinitionJSONValidator();
 	private final Map<Long, Map<String, FrontendTokenDefinition>>
 		_frontendTokenDefinitionsMap = new ConcurrentHashMap<>();
+
+	@Reference
+	private FrontendTokenDefinitionThemeBundleTracker
+		_frontendTokenDefinitionThemeBundleTracker;
 
 	@Reference
 	private Portal _portal;
