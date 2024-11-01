@@ -6,7 +6,6 @@
 package com.liferay.site.initializer.extender.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.model.AccountEntryModel;
@@ -222,18 +221,18 @@ import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
 import com.liferay.site.navigation.service.SiteNavigationMenuLocalService;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemType;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemTypeRegistry;
-import com.liferay.style.book.zip.processor.StyleBookEntryZipProcessor;
+import com.liferay.style.book.importer.StyleBookEntryImporter;
 import com.liferay.template.model.TemplateEntry;
 import com.liferay.template.service.TemplateEntryLocalService;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.wiring.BundleWiring;
 
+import javax.servlet.ServletContext;
 import java.io.InputStream;
 import java.io.Serializable;
-
 import java.net.URL;
 import java.net.URLConnection;
-
 import java.text.DateFormat;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -249,15 +248,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.servlet.ServletContext;
-
-import org.osgi.framework.Bundle;
-import org.osgi.framework.wiring.BundleWiring;
-
 /**
  * @author Brian Wing Shun Chan
  */
 public class BundleSiteInitializer implements SiteInitializer {
+
+	private StyleBookEntryImporter _styleBookEntryImporter;
 
 	public BundleSiteInitializer(
 		AccountEntryLocalService accountEntryLocalService,
@@ -337,7 +333,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 		SiteNavigationMenuLocalService siteNavigationMenuLocalService,
 		StructuredContentFolderResource.Factory
 			structuredContentFolderResourceFactory,
-		StyleBookEntryZipProcessor styleBookEntryZipProcessor,
+		StyleBookEntryImporter styleBookEntryImporter,
 		TaxonomyCategoryResource.Factory taxonomyCategoryResourceFactory,
 		TaxonomyVocabularyResource.Factory taxonomyVocabularyResourceFactory,
 		TemplateEntryLocalService templateEntryLocalService,
@@ -434,7 +430,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 		_siteNavigationMenuLocalService = siteNavigationMenuLocalService;
 		_structuredContentFolderResourceFactory =
 			structuredContentFolderResourceFactory;
-		_styleBookEntryZipProcessor = styleBookEntryZipProcessor;
+		_styleBookEntryImporter = styleBookEntryImporter;
 		_taxonomyCategoryResourceFactory = taxonomyCategoryResourceFactory;
 		_taxonomyVocabularyResourceFactory = taxonomyVocabularyResourceFactory;
 		_templateEntryLocalService = templateEntryLocalService;
@@ -4577,7 +4573,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 			}
 		}
 
-		_styleBookEntryZipProcessor.importStyleBookEntries(
+		_styleBookEntryImporter.importStyleBookEntries(
 			serviceContext.getUserId(), serviceContext.getScopeGroupId(),
 			zipWriter.getFile(), true);
 	}
@@ -6049,7 +6045,6 @@ public class BundleSiteInitializer implements SiteInitializer {
 		_siteNavigationMenuLocalService;
 	private final StructuredContentFolderResource.Factory
 		_structuredContentFolderResourceFactory;
-	private final StyleBookEntryZipProcessor _styleBookEntryZipProcessor;
 	private final TaxonomyCategoryResource.Factory
 		_taxonomyCategoryResourceFactory;
 	private final TaxonomyVocabularyResource.Factory

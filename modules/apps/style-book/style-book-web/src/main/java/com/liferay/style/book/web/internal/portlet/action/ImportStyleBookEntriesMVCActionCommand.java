@@ -24,22 +24,19 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.style.book.constants.StyleBookPortletKeys;
+import com.liferay.style.book.importer.StyleBookEntryImporter;
+import com.liferay.style.book.importer.StyleBookEntryImporterImportResultEntry;
 import com.liferay.style.book.model.StyleBookEntry;
-import com.liferay.style.book.zip.processor.StyleBookEntryZipProcessor;
-import com.liferay.style.book.zip.processor.StyleBookEntryZipProcessorImportResultEntry;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
 import java.io.File;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eudaldo Alonso
@@ -82,19 +79,19 @@ public class ImportStyleBookEntriesMVCActionCommand
 			actionRequest, "overwrite", true);
 
 		try {
-			List<StyleBookEntryZipProcessorImportResultEntry>
-				styleBookEntryZipProcessorImportResultEntries =
+			List<StyleBookEntryImporterImportResultEntry>
+				styleBookImporterResultEntries =
 					_importStyleBookEntries(
 						themeDisplay.getUserId(),
 						themeDisplay.getScopeGroupId(), file, overwrite);
 
 			if (ListUtil.isNotEmpty(
-					styleBookEntryZipProcessorImportResultEntries)) {
+					styleBookImporterResultEntries)) {
 
 				SessionMessages.add(
 					actionRequest,
-					"styleBookEntryZipProcessorImportResultEntries",
-					styleBookEntryZipProcessorImportResultEntries);
+					"styleBookImporterResultEntries",
+					styleBookImporterResultEntries);
 			}
 
 			SessionMessages.add(actionRequest, "success");
@@ -115,16 +112,16 @@ public class ImportStyleBookEntriesMVCActionCommand
 				}
 			}
 
-			for (StyleBookEntryZipProcessorImportResultEntry
-					styleBookEntryZipProcessorImportResultEntry :
-						styleBookEntryZipProcessorImportResultEntries) {
+			for (StyleBookEntryImporterImportResultEntry
+				styleBookEntryImporterImportResultEntry :
+						styleBookImporterResultEntries) {
 
 				StyleBookEntry styleBookEntry =
-					styleBookEntryZipProcessorImportResultEntry.
+					styleBookEntryImporterImportResultEntry.
 						getStyleBookEntry();
 
-				if ((styleBookEntryZipProcessorImportResultEntry.getStatus() !=
-						StyleBookEntryZipProcessorImportResultEntry.Status.
+				if ((styleBookEntryImporterImportResultEntry.getStatus() !=
+					 StyleBookEntryImporterImportResultEntry.Status.
 							INVALID) &&
 					(styleBookEntry != null) &&
 					!_isValidFrontendTokenDefinition(
@@ -145,13 +142,12 @@ public class ImportStyleBookEntriesMVCActionCommand
 		sendRedirect(actionRequest, actionResponse);
 	}
 
-	private List<StyleBookEntryZipProcessorImportResultEntry>
+	private List<StyleBookEntryImporterImportResultEntry>
 			_importStyleBookEntries(
 				long userId, long groupId, File file, boolean overwrite)
 		throws Exception {
 
-		return _styleBookEntryZipProcessor.importStyleBookEntries(
-			userId, groupId, file, overwrite);
+		return _styleBookEntryImporter.importStyleBookEntries(userId, groupId, file, overwrite);
 	}
 
 	private boolean _isValidFrontendTokenDefinition(
@@ -187,6 +183,5 @@ public class ImportStyleBookEntriesMVCActionCommand
 	private Portal _portal;
 
 	@Reference
-	private StyleBookEntryZipProcessor _styleBookEntryZipProcessor;
-
+	private StyleBookEntryImporter _styleBookEntryImporter;
 }

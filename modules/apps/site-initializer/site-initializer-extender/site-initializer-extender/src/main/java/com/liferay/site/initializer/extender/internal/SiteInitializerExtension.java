@@ -87,16 +87,14 @@ import com.liferay.site.initializer.SiteInitializer;
 import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
 import com.liferay.site.navigation.service.SiteNavigationMenuLocalService;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemTypeRegistry;
-import com.liferay.style.book.zip.processor.StyleBookEntryZipProcessor;
+import com.liferay.style.book.importer.StyleBookEntryImporter;
 import com.liferay.template.service.TemplateEntryLocalService;
-
-import javax.servlet.ServletContext;
-
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
-
 import org.osgi.framework.Bundle;
+
+import javax.servlet.ServletContext;
 
 /**
  * @author Preston Crary
@@ -183,7 +181,7 @@ public class SiteInitializerExtension {
 		SiteNavigationMenuLocalService siteNavigationMenuLocalService,
 		StructuredContentFolderResource.Factory
 			structuredContentFolderResourceFactory,
-		StyleBookEntryZipProcessor styleBookEntryZipProcessor,
+		StyleBookEntryImporter styleBookEntryImporter,
 		TaxonomyCategoryResource.Factory taxonomyCategoryResourceFactory,
 		TaxonomyVocabularyResource.Factory taxonomyVocabularyResourceFactory,
 		TemplateEntryLocalService templateEntryLocalService,
@@ -235,7 +233,7 @@ public class SiteInitializerExtension {
 			segmentsExperienceLocalService, archivedSettingsFactory,
 			siteNavigationMenuItemLocalService,
 			siteNavigationMenuItemTypeRegistry, siteNavigationMenuLocalService,
-			structuredContentFolderResourceFactory, styleBookEntryZipProcessor,
+			structuredContentFolderResourceFactory, styleBookEntryImporter,
 			taxonomyCategoryResourceFactory, taxonomyVocabularyResourceFactory,
 			templateEntryLocalService, themeLocalService,
 			userAccountResourceFactory, userGroupLocalService, userLocalService,

@@ -91,20 +91,9 @@ import com.liferay.site.initializer.extender.internal.file.backed.servlet.FileBa
 import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
 import com.liferay.site.navigation.service.SiteNavigationMenuLocalService;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemTypeRegistry;
-import com.liferay.style.book.zip.processor.StyleBookEntryZipProcessor;
+import com.liferay.style.book.importer.StyleBookEntryImporter;
 import com.liferay.template.service.TemplateEntryLocalService;
-
-import java.io.File;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.ServletContext;
-
 import org.apache.felix.dm.DependencyManager;
-
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -116,6 +105,13 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
+
+import javax.servlet.ServletContext;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Brian Wing Shun Chan
@@ -181,7 +177,7 @@ public class SiteInitializerExtender
 				_siteNavigationMenuItemTypeRegistry,
 				_siteNavigationMenuLocalService,
 				_structuredContentFolderResourceFactory,
-				_styleBookEntryZipProcessor, _taxonomyCategoryResourceFactory,
+				_styleBookEntryImporter, _taxonomyCategoryResourceFactory,
 				_taxonomyVocabularyResourceFactory, _templateEntryLocalService,
 				_themeLocalService, _userAccountResourceFactory,
 				_userGroupLocalService, _userLocalService,
@@ -312,7 +308,7 @@ public class SiteInitializerExtender
 				_siteNavigationMenuItemTypeRegistry,
 				_siteNavigationMenuLocalService,
 				_structuredContentFolderResourceFactory,
-				_styleBookEntryZipProcessor, _taxonomyCategoryResourceFactory,
+				_styleBookEntryImporter, _taxonomyCategoryResourceFactory,
 				_taxonomyVocabularyResourceFactory, _templateEntryLocalService,
 				_themeLocalService, _userAccountResourceFactory,
 				_userGroupLocalService, _userLocalService,
@@ -566,7 +562,7 @@ public class SiteInitializerExtender
 		_structuredContentFolderResourceFactory;
 
 	@Reference
-	private StyleBookEntryZipProcessor _styleBookEntryZipProcessor;
+	private StyleBookEntryImporter _styleBookEntryImporter;
 
 	@Reference
 	private TaxonomyCategoryResource.Factory _taxonomyCategoryResourceFactory;

@@ -35,7 +35,7 @@ page import="com.liferay.style.book.web.internal.display.context.PreviewFragment
 page import="com.liferay.style.book.web.internal.display.context.StyleBookDisplayContext" %><%@
 page import="com.liferay.style.book.web.internal.display.context.StyleBookManagementToolbarDisplayContext" %><%@
 page import="com.liferay.style.book.web.internal.frontend.taglib.clay.servlet.taglib.StyleBookVerticalCard" %><%@
-page import="com.liferay.style.book.zip.processor.StyleBookEntryZipProcessorImportResultEntry" %>
+page import="com.liferay.style.book.importer.StyleBookEntryImporterImportResultEntry" %>
 
 <%@ page import="java.util.List" %>
 

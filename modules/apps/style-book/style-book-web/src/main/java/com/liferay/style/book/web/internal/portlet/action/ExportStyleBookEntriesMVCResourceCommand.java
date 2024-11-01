@@ -12,22 +12,19 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.style.book.constants.StyleBookPortletKeys;
+import com.liferay.style.book.exporter.StyleBookEntryExporter;
 import com.liferay.style.book.model.StyleBookEntry;
 import com.liferay.style.book.service.StyleBookEntryLocalService;
-import com.liferay.style.book.zip.processor.StyleBookEntryZipProcessor;
-
-import java.io.File;
-import java.io.FileInputStream;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.portlet.PortletException;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Eudaldo Alonso
@@ -88,7 +85,7 @@ public class ExportStyleBookEntriesMVCResourceCommand
 			}
 		}
 
-		return _styleBookEntryZipProcessor.exportStyleBookEntries(
+		return _styleBookEntryExporter.exportStyleBookEntries(
 			styleBookEntries);
 	}
 
@@ -96,6 +93,6 @@ public class ExportStyleBookEntriesMVCResourceCommand
 	private StyleBookEntryLocalService _styleBookEntryLocalService;
 
 	@Reference
-	private StyleBookEntryZipProcessor _styleBookEntryZipProcessor;
+	private StyleBookEntryExporter _styleBookEntryExporter;
 
 }

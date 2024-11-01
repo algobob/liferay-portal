@@ -8,11 +8,10 @@ package com.liferay.style.book.web.internal.display.context;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.style.book.zip.processor.StyleBookEntryZipProcessorImportResultEntry;
-
-import java.util.List;
+import com.liferay.style.book.importer.StyleBookEntryImporterImportResultEntry;
 
 import javax.portlet.RenderRequest;
+import java.util.List;
 
 /**
  * @author Eudaldo Alonso
@@ -23,48 +22,48 @@ public class ImportStyleBookDisplayContext {
 		_renderRequest = renderRequest;
 	}
 
-	public List<String> getStyleBookEntryZipProcessorImportResultEntryNames(
-		StyleBookEntryZipProcessorImportResultEntry.Status status) {
+	public List<String> getStyleBookImporterResultEntryNames(
+		StyleBookEntryImporterImportResultEntry.Status status) {
 
-		List<StyleBookEntryZipProcessorImportResultEntry>
-			styleBookEntryZipProcessorImportResultEntries =
-				_getStyleBookEntryZipProcessorImportResultEntryNames();
+		List<StyleBookEntryImporterImportResultEntry>
+			styleBookImporterResultEntries =
+				_getStyleBookImporterResultEntryNames();
 
-		if (ListUtil.isEmpty(styleBookEntryZipProcessorImportResultEntries)) {
+		if (ListUtil.isEmpty(styleBookImporterResultEntries)) {
 			return null;
 		}
 
 		return TransformUtil.transform(
-			styleBookEntryZipProcessorImportResultEntries,
-			styleBookEntryZipProcessorImportResultEntry -> {
-				if (styleBookEntryZipProcessorImportResultEntry.getStatus() !=
-						status) {
+			styleBookImporterResultEntries,
+			styleBookEntryImporterImportResultEntry -> {
+				if (styleBookEntryImporterImportResultEntry.getStatus() !=
+					status) {
 
 					return null;
 				}
 
-				return styleBookEntryZipProcessorImportResultEntry.getName();
+				return styleBookEntryImporterImportResultEntry.getName();
 			});
 	}
 
-	private List<StyleBookEntryZipProcessorImportResultEntry>
-		_getStyleBookEntryZipProcessorImportResultEntryNames() {
+	private List<StyleBookEntryImporterImportResultEntry>
+	_getStyleBookImporterResultEntryNames() {
 
-		if (_styleBookEntryZipProcessorImportResultEntries != null) {
-			return _styleBookEntryZipProcessorImportResultEntries;
+		if (_styleBookImporterResultEntries != null) {
+			return _styleBookImporterResultEntries;
 		}
 
-		_styleBookEntryZipProcessorImportResultEntries =
-			(List<StyleBookEntryZipProcessorImportResultEntry>)
+		_styleBookImporterResultEntries =
+			(List<StyleBookEntryImporterImportResultEntry>)
 				SessionMessages.get(
 					_renderRequest,
-					"styleBookEntryZipProcessorImportResultEntries");
+					"styleBookImporterResultEntries");
 
-		return _styleBookEntryZipProcessorImportResultEntries;
+		return _styleBookImporterResultEntries;
 	}
 
 	private final RenderRequest _renderRequest;
-	private List<StyleBookEntryZipProcessorImportResultEntry>
-		_styleBookEntryZipProcessorImportResultEntries;
+	private List<StyleBookEntryImporterImportResultEntry>
+		_styleBookImporterResultEntries;
 
 }
