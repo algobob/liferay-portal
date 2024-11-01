@@ -93,14 +93,16 @@ import com.liferay.site.navigation.service.SiteNavigationMenuLocalService;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemTypeRegistry;
 import com.liferay.style.book.importer.StyleBookEntryImporter;
 import com.liferay.template.service.TemplateEntryLocalService;
+
+import java.io.File;
+
+import javax.servlet.ServletContext;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import javax.servlet.ServletContext;
-import java.io.File;
 
 /**
  * @author Shuyang Zhou
@@ -162,8 +164,8 @@ public class SiteInitializerFactoryImpl implements SiteInitializerFactory {
 			_siteNavigationMenuItemLocalService,
 			_siteNavigationMenuItemTypeRegistry,
 			_siteNavigationMenuLocalService,
-			_structuredContentFolderResourceFactory,
-			_styleBookEntryImporter, _taxonomyCategoryResourceFactory,
+			_structuredContentFolderResourceFactory, _styleBookEntryImporter,
+			_taxonomyCategoryResourceFactory,
 			_taxonomyVocabularyResourceFactory, _templateEntryLocalService,
 			_themeLocalService, _userAccountResourceFactory,
 			_userGroupLocalService, _userLocalService,
@@ -420,7 +422,7 @@ public class SiteInitializerFactoryImpl implements SiteInitializerFactory {
 		_structuredContentFolderResourceFactory;
 
 	@Reference
-	 private StyleBookEntryImporter _styleBookEntryImporter;
+	private StyleBookEntryImporter _styleBookEntryImporter;
 
 	@Reference
 	private TaxonomyCategoryResource.Factory _taxonomyCategoryResourceFactory;

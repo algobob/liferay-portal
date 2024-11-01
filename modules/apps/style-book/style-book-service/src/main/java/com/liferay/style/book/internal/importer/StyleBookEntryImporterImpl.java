@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.liferay.style.book.internal.importer;
 
 import com.liferay.petra.string.CharPool;
@@ -24,11 +29,10 @@ import com.liferay.style.book.importer.StyleBookEntryImporterImportResultEntry;
 import com.liferay.style.book.model.StyleBookEntry;
 import com.liferay.style.book.service.StyleBookEntryLocalService;
 import com.liferay.style.book.service.StyleBookEntryService;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import java.io.File;
 import java.io.InputStream;
+
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -36,11 +40,18 @@ import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-@Component( service = StyleBookEntryImporter.class)
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+/**
+ * @author Anderson Luiz
+ */
+@Component(service = StyleBookEntryImporter.class)
 public class StyleBookEntryImporterImpl implements StyleBookEntryImporter {
+
 	@Override
 	public List<StyleBookEntryImporterImportResultEntry> importStyleBookEntries(
-		long userId, long groupId, File file, boolean overwrite)
+			long userId, long groupId, File file, boolean overwrite)
 		throws Exception {
 
 		_importResultEntries = new ArrayList<>();
@@ -69,12 +80,62 @@ public class StyleBookEntryImporterImpl implements StyleBookEntryImporter {
 		return _importResultEntries;
 	}
 
-	private boolean _isStyleBookEntry(String fileName) {
-		if (Objects.equals(_getFileName(fileName), "style-book.json")) {
-			return true;
+	private StyleBookEntry _addStyleBookEntry(
+			long groupId, String frontendTokensValues, String name,
+			boolean overwrite, String styleBookEntryKey, String themeId)
+		throws Exception {
+
+		StyleBookEntry styleBookEntry =
+			_styleBookEntryEntryLocalService.fetchStyleBookEntry(
+				groupId, styleBookEntryKey);
+
+		if ((styleBookEntry != null) && !overwrite) {
+			throw new DuplicateStyleBookEntryKeyException(styleBookEntryKey);
 		}
 
-		return false;
+		try {
+			if (styleBookEntry == null) {
+				styleBookEntry = _styleBookEntryEntryService.addStyleBookEntry(
+					null, groupId, frontendTokensValues, name,
+					styleBookEntryKey, themeId,
+					ServiceContextThreadLocal.getServiceContext());
+			}
+			else {
+				styleBookEntry =
+					_styleBookEntryEntryService.updateStyleBookEntry(
+						styleBookEntry.getStyleBookEntryId(),
+						frontendTokensValues, name);
+			}
+
+			_importResultEntries.add(
+				new StyleBookEntryImporterImportResultEntry(
+					name,
+					StyleBookEntryImporterImportResultEntry.Status.IMPORTED,
+					styleBookEntry));
+
+			return styleBookEntry;
+		}
+		catch (PortalException portalException) {
+			_importResultEntries.add(
+				new StyleBookEntryImporterImportResultEntry(
+					name,
+					StyleBookEntryImporterImportResultEntry.Status.INVALID,
+					portalException.getMessage()));
+		}
+
+		return null;
+	}
+
+	private String _getContent(ZipFile zipFile, String fileName)
+		throws Exception {
+
+		ZipEntry zipEntry = zipFile.getEntry(fileName);
+
+		if (zipEntry == null) {
+			return StringPool.BLANK;
+		}
+
+		return StringUtil.read(zipFile.getInputStream(zipEntry));
 	}
 
 	private String _getFileName(String path) {
@@ -87,9 +148,126 @@ public class StyleBookEntryImporterImpl implements StyleBookEntryImporter {
 		return path;
 	}
 
+	private InputStream _getInputStream(ZipFile zipFile, String fileName)
+		throws Exception {
+
+		ZipEntry zipEntry = zipFile.getEntry(fileName);
+
+		if (zipEntry == null) {
+			return null;
+		}
+
+		return zipFile.getInputStream(zipEntry);
+	}
+
+	private String _getKey(ZipFile zipFile, long groupId, String fileName)
+		throws Exception {
+
+		String key = StringPool.BLANK;
+
+		if (fileName.lastIndexOf(CharPool.SLASH) != -1) {
+			String path = fileName.substring(
+				0, fileName.lastIndexOf(CharPool.SLASH));
+
+			key = path.substring(path.lastIndexOf(CharPool.SLASH) + 1);
+		}
+		else if (fileName.equals("style-book.json")) {
+			JSONObject styleBookJSONObject = _jsonFactory.createJSONObject(
+				StringUtil.read(
+					zipFile.getInputStream(zipFile.getEntry(fileName))));
+
+			key = _styleBookEntryEntryLocalService.generateStyleBookEntryKey(
+				groupId, styleBookJSONObject.getString("name"));
+		}
+
+		if (Validator.isNotNull(key)) {
+			return key;
+		}
+
+		throw new IllegalArgumentException("Incorrect file name " + fileName);
+	}
+
+	private long _getPreviewFileEntryId(
+			long userId, long groupId, ZipFile zipFile, String className,
+			long classPK, String fileName, String contentPath)
+		throws Exception {
+
+		InputStream inputStream = _getStyleBookEntryInputStream(
+			zipFile, fileName, contentPath);
+
+		if (inputStream == null) {
+			return 0;
+		}
+
+		Repository repository =
+			PortletFileRepositoryUtil.fetchPortletRepository(
+				groupId, StyleBookPortletKeys.STYLE_BOOK);
+
+		if (repository == null) {
+			if (groupId == GroupConstants.DEFAULT_PARENT_GROUP_ID) {
+				StyleBookEntry styleBookEntry =
+					_styleBookEntryEntryLocalService.getStyleBookEntry(classPK);
+
+				Company company = _companyLocalService.getCompany(
+					styleBookEntry.getCompanyId());
+
+				groupId = company.getGroupId();
+			}
+
+			ServiceContext serviceContext = new ServiceContext();
+
+			serviceContext.setAddGroupPermissions(true);
+			serviceContext.setAddGuestPermissions(true);
+
+			repository = PortletFileRepositoryUtil.addPortletRepository(
+				groupId, StyleBookPortletKeys.STYLE_BOOK, serviceContext);
+		}
+
+		FileEntry fileEntry = PortletFileRepositoryUtil.addPortletFileEntry(
+			null, groupId, userId, className, classPK,
+			StyleBookPortletKeys.STYLE_BOOK, repository.getDlFolderId(),
+			inputStream,
+			classPK + "_preview." + FileUtil.getExtension(contentPath),
+			MimeTypesUtil.getContentType(contentPath), false);
+
+		return fileEntry.getFileEntryId();
+	}
+
+	private String _getStyleBookEntryContent(
+			ZipFile zipFile, String fileName, String contentPath)
+		throws Exception {
+
+		InputStream inputStream = _getStyleBookEntryInputStream(
+			zipFile, fileName, contentPath);
+
+		if (inputStream == null) {
+			return StringPool.BLANK;
+		}
+
+		return StringUtil.read(inputStream);
+	}
+
+	private InputStream _getStyleBookEntryInputStream(
+			ZipFile zipFile, String fileName, String contentPath)
+		throws Exception {
+
+		if (contentPath.startsWith(StringPool.SLASH)) {
+			return _getInputStream(zipFile, contentPath.substring(1));
+		}
+
+		if (contentPath.startsWith("./")) {
+			contentPath = contentPath.substring(2);
+		}
+
+		String path = fileName.substring(
+			0, fileName.lastIndexOf(StringPool.SLASH));
+
+		return _getInputStream(zipFile, path + StringPool.SLASH + contentPath);
+	}
+
 	private void _importStyleBookEntries(
-		long userId, long groupId, ZipFile zipFile, String fileName,
-		boolean overwrite)
+			long userId, long groupId, ZipFile zipFile, String fileName,
+			boolean overwrite)
 		throws Exception {
 
 		boolean defaultStyleBookEntry = false;
@@ -153,186 +331,18 @@ public class StyleBookEntryImporterImpl implements StyleBookEntryImporter {
 		}
 	}
 
-	private String _getContent(ZipFile zipFile, String fileName)
-		throws Exception {
-
-		ZipEntry zipEntry = zipFile.getEntry(fileName);
-
-		if (zipEntry == null) {
-			return StringPool.BLANK;
+	private boolean _isStyleBookEntry(String fileName) {
+		if (Objects.equals(_getFileName(fileName), "style-book.json")) {
+			return true;
 		}
 
-		return StringUtil.read(zipFile.getInputStream(zipEntry));
+		return false;
 	}
 
-
-	private InputStream _getInputStream(ZipFile zipFile, String fileName)
-		throws Exception {
-
-		ZipEntry zipEntry = zipFile.getEntry(fileName);
-
-		if (zipEntry == null) {
-			return null;
-		}
-
-		return zipFile.getInputStream(zipEntry);
-	}
-
-	private String _getKey(ZipFile zipFile, long groupId, String fileName)
-		throws Exception {
-
-		String key = StringPool.BLANK;
-
-		if (fileName.lastIndexOf(CharPool.SLASH) != -1) {
-			String path = fileName.substring(
-				0, fileName.lastIndexOf(CharPool.SLASH));
-
-			key = path.substring(path.lastIndexOf(CharPool.SLASH) + 1);
-		}
-		else if (fileName.equals("style-book.json")) {
-			JSONObject styleBookJSONObject = _jsonFactory.createJSONObject(
-				StringUtil.read(
-					zipFile.getInputStream(zipFile.getEntry(fileName))));
-
-			key = _styleBookEntryEntryLocalService.generateStyleBookEntryKey(
-				groupId, styleBookJSONObject.getString("name"));
-		}
-
-		if (Validator.isNotNull(key)) {
-			return key;
-		}
-
-		throw new IllegalArgumentException("Incorrect file name " + fileName);
-	}
-
-	private long _getPreviewFileEntryId(
-		long userId, long groupId, ZipFile zipFile, String className,
-		long classPK, String fileName, String contentPath)
-		throws Exception {
-
-		InputStream inputStream = _getStyleBookEntryInputStream(
-			zipFile, fileName, contentPath);
-
-		if (inputStream == null) {
-			return 0;
-		}
-
-		Repository repository =
-			PortletFileRepositoryUtil.fetchPortletRepository(
-				groupId, StyleBookPortletKeys.STYLE_BOOK);
-
-		if (repository == null) {
-			if (groupId == GroupConstants.DEFAULT_PARENT_GROUP_ID) {
-				StyleBookEntry styleBookEntry =
-					_styleBookEntryEntryLocalService.getStyleBookEntry(classPK);
-
-				Company company = _companyLocalService.getCompany(
-					styleBookEntry.getCompanyId());
-
-				groupId = company.getGroupId();
-			}
-
-			ServiceContext serviceContext = new ServiceContext();
-
-			serviceContext.setAddGroupPermissions(true);
-			serviceContext.setAddGuestPermissions(true);
-
-			repository = PortletFileRepositoryUtil.addPortletRepository(
-				groupId, StyleBookPortletKeys.STYLE_BOOK, serviceContext);
-		}
-
-		FileEntry fileEntry = PortletFileRepositoryUtil.addPortletFileEntry(
-			null, groupId, userId, className, classPK,
-			StyleBookPortletKeys.STYLE_BOOK, repository.getDlFolderId(),
-			inputStream,
-			classPK + "_preview." + FileUtil.getExtension(contentPath),
-			MimeTypesUtil.getContentType(contentPath), false);
-
-		return fileEntry.getFileEntryId();
-	}
-
-	private String _getStyleBookEntryContent(
-		ZipFile zipFile, String fileName, String contentPath)
-		throws Exception {
-
-		InputStream inputStream = _getStyleBookEntryInputStream(
-			zipFile, fileName, contentPath);
-
-		if (inputStream == null) {
-			return StringPool.BLANK;
-		}
-
-		return StringUtil.read(inputStream);
-	}
-
-	private InputStream _getStyleBookEntryInputStream(
-		ZipFile zipFile, String fileName, String contentPath)
-		throws Exception {
-
-		if (contentPath.startsWith(StringPool.SLASH)) {
-			return _getInputStream(zipFile, contentPath.substring(1));
-		}
-
-		if (contentPath.startsWith("./")) {
-			contentPath = contentPath.substring(2);
-		}
-
-		String path = fileName.substring(
-			0, fileName.lastIndexOf(StringPool.SLASH));
-
-		return _getInputStream(zipFile, path + StringPool.SLASH + contentPath);
-	}
-
-	private StyleBookEntry _addStyleBookEntry(
-		long groupId, String frontendTokensValues, String name,
-		boolean overwrite, String styleBookEntryKey, String themeId)
-		throws Exception {
-
-		StyleBookEntry styleBookEntry =
-			_styleBookEntryEntryLocalService.fetchStyleBookEntry(
-				groupId, styleBookEntryKey);
-
-		if ((styleBookEntry != null) && !overwrite) {
-			throw new DuplicateStyleBookEntryKeyException(styleBookEntryKey);
-		}
-
-		try {
-			if (styleBookEntry == null) {
-				styleBookEntry = _styleBookEntryEntryService.addStyleBookEntry(
-					null, groupId, frontendTokensValues, name,
-					styleBookEntryKey, themeId,
-					ServiceContextThreadLocal.getServiceContext());
-			}
-			else {
-				styleBookEntry =
-					_styleBookEntryEntryService.updateStyleBookEntry(
-						styleBookEntry.getStyleBookEntryId(),
-						frontendTokensValues, name);
-			}
-
-			_importResultEntries.add(
-				new StyleBookEntryImporterImportResultEntry(
-					name,
-					StyleBookEntryImporterImportResultEntry.Status.IMPORTED,
-					styleBookEntry));
-
-			return styleBookEntry;
-		}
-		catch (PortalException portalException) {
-			_importResultEntries.add(
-				new StyleBookEntryImporterImportResultEntry(
-					name,
-					StyleBookEntryImporterImportResultEntry.Status.INVALID,
-					portalException.getMessage()));
-		}
-
-		return null;
-	}
 	@Reference
 	private CompanyLocalService _companyLocalService;
 
-	private List<StyleBookEntryImporterImportResultEntry>
-		_importResultEntries;
+	private List<StyleBookEntryImporterImportResultEntry> _importResultEntries;
 
 	@Reference
 	private JSONFactory _jsonFactory;

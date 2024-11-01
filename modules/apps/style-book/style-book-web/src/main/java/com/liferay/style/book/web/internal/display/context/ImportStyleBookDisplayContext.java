@@ -10,8 +10,9 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.style.book.importer.StyleBookEntryImporterImportResultEntry;
 
-import javax.portlet.RenderRequest;
 import java.util.List;
+
+import javax.portlet.RenderRequest;
 
 /**
  * @author Eudaldo Alonso
@@ -37,7 +38,7 @@ public class ImportStyleBookDisplayContext {
 			styleBookImporterResultEntries,
 			styleBookEntryImporterImportResultEntry -> {
 				if (styleBookEntryImporterImportResultEntry.getStatus() !=
-					status) {
+						status) {
 
 					return null;
 				}
@@ -47,17 +48,15 @@ public class ImportStyleBookDisplayContext {
 	}
 
 	private List<StyleBookEntryImporterImportResultEntry>
-	_getStyleBookImporterResultEntryNames() {
+		_getStyleBookImporterResultEntryNames() {
 
 		if (_styleBookImporterResultEntries != null) {
 			return _styleBookImporterResultEntries;
 		}
 
 		_styleBookImporterResultEntries =
-			(List<StyleBookEntryImporterImportResultEntry>)
-				SessionMessages.get(
-					_renderRequest,
-					"styleBookImporterResultEntries");
+			(List<StyleBookEntryImporterImportResultEntry>)SessionMessages.get(
+				_renderRequest, "styleBookImporterResultEntries");
 
 		return _styleBookImporterResultEntries;
 	}

@@ -6,6 +6,7 @@
 package com.liferay.site.initializer.extender.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.model.AccountEntryModel;
@@ -224,15 +225,15 @@ import com.liferay.site.navigation.type.SiteNavigationMenuItemTypeRegistry;
 import com.liferay.style.book.importer.StyleBookEntryImporter;
 import com.liferay.template.model.TemplateEntry;
 import com.liferay.template.service.TemplateEntryLocalService;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.wiring.BundleWiring;
 
-import javax.servlet.ServletContext;
 import java.io.InputStream;
 import java.io.Serializable;
+
 import java.net.URL;
 import java.net.URLConnection;
+
 import java.text.DateFormat;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -248,12 +249,15 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.servlet.ServletContext;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.wiring.BundleWiring;
+
 /**
  * @author Brian Wing Shun Chan
  */
 public class BundleSiteInitializer implements SiteInitializer {
-
-	private StyleBookEntryImporter _styleBookEntryImporter;
 
 	public BundleSiteInitializer(
 		AccountEntryLocalService accountEntryLocalService,
@@ -6045,6 +6049,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 		_siteNavigationMenuLocalService;
 	private final StructuredContentFolderResource.Factory
 		_structuredContentFolderResourceFactory;
+	private final StyleBookEntryImporter _styleBookEntryImporter;
 	private final TaxonomyCategoryResource.Factory
 		_taxonomyCategoryResourceFactory;
 	private final TaxonomyVocabularyResource.Factory
