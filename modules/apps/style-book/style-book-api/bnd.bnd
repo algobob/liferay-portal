@@ -1,12 +1,13 @@
 Bundle-Name: Liferay Style Book API
 Bundle-SymbolicName: com.liferay.style.book.api
-Bundle-Version: 9.0.1
+Bundle-Version: 10.0.0
 Export-Package:\
 	com.liferay.style.book.constants,\
 	com.liferay.style.book.exception,\
+	com.liferay.style.book.exporter,\
+	com.liferay.style.book.importer,\
 	com.liferay.style.book.model,\
 	com.liferay.style.book.service,\
 	com.liferay.style.book.service.persistence,\
 	com.liferay.style.book.util,\
-	com.liferay.style.book.util.comparator,\
-	com.liferay.style.book.zip.processor
+	com.liferay.style.book.util.comparator
