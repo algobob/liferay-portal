@@ -23,19 +23,19 @@ public class ImportStyleBookDisplayContext {
 		_renderRequest = renderRequest;
 	}
 
-	public List<String> getStyleBookImporterResultEntryNames(
+	public List<String> getStyleBookEntryImporterImportResultEntries(
 		StyleBookEntryImporterImportResultEntry.Status status) {
 
 		List<StyleBookEntryImporterImportResultEntry>
-			styleBookImporterResultEntries =
-				_getStyleBookImporterResultEntryNames();
+			styleBookEntryImporterImportResultEntries =
+				_getStyleBookEntryImporterImportResultEntries();
 
-		if (ListUtil.isEmpty(styleBookImporterResultEntries)) {
+		if (ListUtil.isEmpty(styleBookEntryImporterImportResultEntries)) {
 			return null;
 		}
 
 		return TransformUtil.transform(
-			styleBookImporterResultEntries,
+			styleBookEntryImporterImportResultEntries,
 			styleBookEntryImporterImportResultEntry -> {
 				if (styleBookEntryImporterImportResultEntry.getStatus() !=
 						status) {
@@ -48,21 +48,21 @@ public class ImportStyleBookDisplayContext {
 	}
 
 	private List<StyleBookEntryImporterImportResultEntry>
-		_getStyleBookImporterResultEntryNames() {
+		_getStyleBookEntryImporterImportResultEntries() {
 
-		if (_styleBookImporterResultEntries != null) {
-			return _styleBookImporterResultEntries;
+		if (_styleBookEntryImporterImportResultEntries != null) {
+			return _styleBookEntryImporterImportResultEntries;
 		}
 
-		_styleBookImporterResultEntries =
+		_styleBookEntryImporterImportResultEntries =
 			(List<StyleBookEntryImporterImportResultEntry>)SessionMessages.get(
-				_renderRequest, "styleBookImporterResultEntries");
+				_renderRequest, "styleBookEntryImporterImportResultEntries");
 
-		return _styleBookImporterResultEntries;
+		return _styleBookEntryImporterImportResultEntries;
 	}
 
 	private final RenderRequest _renderRequest;
 	private List<StyleBookEntryImporterImportResultEntry>
-		_styleBookImporterResultEntries;
+		_styleBookEntryImporterImportResultEntries;
 
 }

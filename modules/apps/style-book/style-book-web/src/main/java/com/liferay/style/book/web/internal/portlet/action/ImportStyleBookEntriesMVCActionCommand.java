@@ -83,14 +83,17 @@ public class ImportStyleBookEntriesMVCActionCommand
 
 		try {
 			List<StyleBookEntryImporterImportResultEntry>
-				styleBookImporterResultEntries = _importStyleBookEntries(
-					themeDisplay.getUserId(), themeDisplay.getScopeGroupId(),
-					file, overwrite);
+				styleBookEntryImporterImportResultEntries =
+					_importStyleBookEntries(
+						themeDisplay.getUserId(),
+						themeDisplay.getScopeGroupId(), file, overwrite);
 
-			if (ListUtil.isNotEmpty(styleBookImporterResultEntries)) {
+			if (ListUtil.isNotEmpty(
+					styleBookEntryImporterImportResultEntries)) {
+
 				SessionMessages.add(
-					actionRequest, "styleBookImporterResultEntries",
-					styleBookImporterResultEntries);
+					actionRequest, "styleBookEntryImporterImportResultEntries",
+					styleBookEntryImporterImportResultEntries);
 			}
 
 			SessionMessages.add(actionRequest, "success");
@@ -113,7 +116,7 @@ public class ImportStyleBookEntriesMVCActionCommand
 
 			for (StyleBookEntryImporterImportResultEntry
 					styleBookEntryImporterImportResultEntry :
-						styleBookImporterResultEntries) {
+						styleBookEntryImporterImportResultEntries) {
 
 				StyleBookEntry styleBookEntry =
 					styleBookEntryImporterImportResultEntry.getStyleBookEntry();
