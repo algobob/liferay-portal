@@ -29,13 +29,13 @@ page import="com.liferay.portal.kernel.util.PortalUtil" %><%@
 page import="com.liferay.style.book.constants.StyleBookPortletKeys" %><%@
 page import="com.liferay.style.book.exception.DuplicateStyleBookEntryKeyException" %><%@
 page import="com.liferay.style.book.exception.StyleBookEntryFileException" %><%@
+page import="com.liferay.style.book.importer.StyleBookEntryImporterEntry" %><%@
 page import="com.liferay.style.book.web.internal.display.context.EditStyleBookEntryDisplayContext" %><%@
 page import="com.liferay.style.book.web.internal.display.context.ImportStyleBookDisplayContext" %><%@
 page import="com.liferay.style.book.web.internal.display.context.PreviewFragmentCollectionDisplayContext" %><%@
 page import="com.liferay.style.book.web.internal.display.context.StyleBookDisplayContext" %><%@
 page import="com.liferay.style.book.web.internal.display.context.StyleBookManagementToolbarDisplayContext" %><%@
-page import="com.liferay.style.book.web.internal.frontend.taglib.clay.servlet.taglib.StyleBookVerticalCard" %><%@
-page import="com.liferay.style.book.zip.processor.StyleBookEntryZipProcessorImportResultEntry" %>
+page import="com.liferay.style.book.web.internal.frontend.taglib.clay.servlet.taglib.StyleBookVerticalCard" %>
 
 <%@ page import="java.util.List" %>
 

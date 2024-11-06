@@ -222,7 +222,7 @@ import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
 import com.liferay.site.navigation.service.SiteNavigationMenuLocalService;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemType;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemTypeRegistry;
-import com.liferay.style.book.zip.processor.StyleBookEntryZipProcessor;
+import com.liferay.style.book.importer.StyleBookEntryImporter;
 import com.liferay.template.model.TemplateEntry;
 import com.liferay.template.service.TemplateEntryLocalService;
 
@@ -337,7 +337,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 		SiteNavigationMenuLocalService siteNavigationMenuLocalService,
 		StructuredContentFolderResource.Factory
 			structuredContentFolderResourceFactory,
-		StyleBookEntryZipProcessor styleBookEntryZipProcessor,
+		StyleBookEntryImporter styleBookEntryImporter,
 		TaxonomyCategoryResource.Factory taxonomyCategoryResourceFactory,
 		TaxonomyVocabularyResource.Factory taxonomyVocabularyResourceFactory,
 		TemplateEntryLocalService templateEntryLocalService,
@@ -434,7 +434,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 		_siteNavigationMenuLocalService = siteNavigationMenuLocalService;
 		_structuredContentFolderResourceFactory =
 			structuredContentFolderResourceFactory;
-		_styleBookEntryZipProcessor = styleBookEntryZipProcessor;
+		_styleBookEntryImporter = styleBookEntryImporter;
 		_taxonomyCategoryResourceFactory = taxonomyCategoryResourceFactory;
 		_taxonomyVocabularyResourceFactory = taxonomyVocabularyResourceFactory;
 		_templateEntryLocalService = templateEntryLocalService;
@@ -4577,7 +4577,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 			}
 		}
 
-		_styleBookEntryZipProcessor.importStyleBookEntries(
+		_styleBookEntryImporter.importStyleBookEntries(
 			serviceContext.getUserId(), serviceContext.getScopeGroupId(),
 			zipWriter.getFile(), true);
 	}
@@ -6049,7 +6049,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 		_siteNavigationMenuLocalService;
 	private final StructuredContentFolderResource.Factory
 		_structuredContentFolderResourceFactory;
-	private final StyleBookEntryZipProcessor _styleBookEntryZipProcessor;
+	private final StyleBookEntryImporter _styleBookEntryImporter;
 	private final TaxonomyCategoryResource.Factory
 		_taxonomyCategoryResourceFactory;
 	private final TaxonomyVocabularyResource.Factory

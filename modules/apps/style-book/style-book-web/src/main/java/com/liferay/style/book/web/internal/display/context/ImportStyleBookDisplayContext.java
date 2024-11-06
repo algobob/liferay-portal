@@ -8,7 +8,7 @@ package com.liferay.style.book.web.internal.display.context;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.style.book.zip.processor.StyleBookEntryZipProcessorImportResultEntry;
+import com.liferay.style.book.importer.StyleBookEntryImporterEntry;
 
 import java.util.List;
 
@@ -23,48 +23,42 @@ public class ImportStyleBookDisplayContext {
 		_renderRequest = renderRequest;
 	}
 
-	public List<String> getStyleBookEntryZipProcessorImportResultEntryNames(
-		StyleBookEntryZipProcessorImportResultEntry.Status status) {
+	public List<String> getStyleBookEntryImporterEntryNames(
+		StyleBookEntryImporterEntry.Status status) {
 
-		List<StyleBookEntryZipProcessorImportResultEntry>
-			styleBookEntryZipProcessorImportResultEntries =
-				_getStyleBookEntryZipProcessorImportResultEntryNames();
+		List<StyleBookEntryImporterEntry> styleBookEntryImporterEntries =
+			_getStyleBookEntryImporterEntries();
 
-		if (ListUtil.isEmpty(styleBookEntryZipProcessorImportResultEntries)) {
+		if (ListUtil.isEmpty(styleBookEntryImporterEntries)) {
 			return null;
 		}
 
 		return TransformUtil.transform(
-			styleBookEntryZipProcessorImportResultEntries,
-			styleBookEntryZipProcessorImportResultEntry -> {
-				if (styleBookEntryZipProcessorImportResultEntry.getStatus() !=
-						status) {
-
+			styleBookEntryImporterEntries,
+			styleBookEntryImporterEntry -> {
+				if (styleBookEntryImporterEntry.getStatus() != status) {
 					return null;
 				}
 
-				return styleBookEntryZipProcessorImportResultEntry.getName();
+				return styleBookEntryImporterEntry.getName();
 			});
 	}
 
-	private List<StyleBookEntryZipProcessorImportResultEntry>
-		_getStyleBookEntryZipProcessorImportResultEntryNames() {
+	private List<StyleBookEntryImporterEntry>
+		_getStyleBookEntryImporterEntries() {
 
-		if (_styleBookEntryZipProcessorImportResultEntries != null) {
-			return _styleBookEntryZipProcessorImportResultEntries;
+		if (_styleBookEntryImporterEntries != null) {
+			return _styleBookEntryImporterEntries;
 		}
 
-		_styleBookEntryZipProcessorImportResultEntries =
-			(List<StyleBookEntryZipProcessorImportResultEntry>)
-				SessionMessages.get(
-					_renderRequest,
-					"styleBookEntryZipProcessorImportResultEntries");
+		_styleBookEntryImporterEntries =
+			(List<StyleBookEntryImporterEntry>)SessionMessages.get(
+				_renderRequest, "styleBookEntryImporterEntries");
 
-		return _styleBookEntryZipProcessorImportResultEntries;
+		return _styleBookEntryImporterEntries;
 	}
 
 	private final RenderRequest _renderRequest;
-	private List<StyleBookEntryZipProcessorImportResultEntry>
-		_styleBookEntryZipProcessorImportResultEntries;
+	private List<StyleBookEntryImporterEntry> _styleBookEntryImporterEntries;
 
 }

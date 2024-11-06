@@ -12,9 +12,9 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.style.book.constants.StyleBookPortletKeys;
+import com.liferay.style.book.exporter.StyleBookEntryExporter;
 import com.liferay.style.book.model.StyleBookEntry;
 import com.liferay.style.book.service.StyleBookEntryLocalService;
-import com.liferay.style.book.zip.processor.StyleBookEntryZipProcessor;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -88,14 +88,13 @@ public class ExportStyleBookEntriesMVCResourceCommand
 			}
 		}
 
-		return _styleBookEntryZipProcessor.exportStyleBookEntries(
-			styleBookEntries);
+		return _styleBookEntryExporter.exportStyleBookEntries(styleBookEntries);
 	}
 
 	@Reference
-	private StyleBookEntryLocalService _styleBookEntryLocalService;
+	private StyleBookEntryExporter _styleBookEntryExporter;
 
 	@Reference
-	private StyleBookEntryZipProcessor _styleBookEntryZipProcessor;
+	private StyleBookEntryLocalService _styleBookEntryLocalService;
 
 }
