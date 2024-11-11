@@ -36,7 +36,6 @@ const DEFAULT_CONFIG = {
 		},
 	],
 	portletNamespace: 'ContentPageEditorPortlet',
-	styleBookEnabled: true,
 	styleBooks: [
 		{
 			name: 'Pablo Style',

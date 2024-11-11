@@ -203,7 +203,6 @@ export interface Config {
 
 	singleSegmentsExperienceMode: boolean;
 	siteNavigationMenuItemSelectorURL: string;
-	styleBookEnabled: boolean;
 	styleBooks: Array<{
 		imagePreviewURL: string;
 		name: string;
