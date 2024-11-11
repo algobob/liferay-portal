@@ -183,97 +183,96 @@ export default function PageDesignOptionsSidebar() {
 }
 
 const OptionList = ({options = [], icon, type}) => {
-	if (type === OPTIONS_TYPES.styleBook && !config.styleBookEnabled) {
-		return (
-			<ClayAlert className="mt-3" displayType="info">
-				{config.isPrivateLayoutsEnabled
-					? Liferay.Language.get(
-							'this-page-is-using-a-different-theme-than-the-one-set-for-public-pages'
-						)
-					: Liferay.Language.get(
-							'this-page-is-using-a-different-theme-than-the-one-set-for-all-pages'
-						)}
-			</ClayAlert>
-		);
-	}
-
 	return (
-		<ul className="list-unstyled mt-4">
-			{options.map(
-				(
-					{imagePreviewURL, isActive, name, onClick, subtitle},
-					index
-				) => (
-					<li key={index}>
-						<ClayCard
-							aria-label={name}
-							className={classNames({
-								'page-editor__sidebar__design-options__tab-card--active':
-									isActive,
-							})}
-							displayType="file"
-							onClick={() => {
-								if (!isActive) {
-									onClick();
-								}
-							}}
-							onKeyDown={(event) => {
-								if (event.key === 'Enter' && !isActive) {
-									onClick();
-								}
-							}}
-							role="button"
-							selectable
-							tabIndex="0"
-						>
-							<ClayCard.AspectRatio
-								className="card-item-first"
-								containerAspectRatio="16/9"
-							>
-								{imagePreviewURL ? (
-									<img
-										alt="thumbnail"
-										className="aspect-ratio-item aspect-ratio-item-center-middle aspect-ratio-item-fluid"
-										src={imagePreviewURL}
-									/>
-								) : (
-									<div className="aspect-ratio-item aspect-ratio-item-center-middle aspect-ratio-item-fluid card-type-asset-icon">
-										<ClayIcon symbol={icon} />
-									</div>
-								)}
-
-								{isActive && (
-									<ClaySticker
-										displayType="primary"
-										position="bottom-left"
-									>
-										<ClayIcon symbol="check-circle" />
-									</ClaySticker>
-								)}
-							</ClayCard.AspectRatio>
-
-							<ClayCard.Body>
-								<ClayCard.Row>
-									<div className="autofit-col autofit-col-expand">
-										<section className="autofit-section">
-											<ClayCard.Description displayType="title">
-												{name}
-											</ClayCard.Description>
-
-											{subtitle && (
-												<ClayCard.Description displayType="subtitle">
-													{subtitle}
-												</ClayCard.Description>
-											)}
-										</section>
-									</div>
-								</ClayCard.Row>
-							</ClayCard.Body>
-						</ClayCard>
-					</li>
-				)
+		<div>
+			{type === OPTIONS_TYPES.styleBook && !options.length && (
+				<ClayAlert displayType="info" variant="stripe">
+					{sub(
+						Liferay.Language.get(
+							'info-only-style-books-based-on-the-frontend-token-definition-provided-by-x-theme-are-visible'
+						),
+						config.themeName
+					)}
+				</ClayAlert>
 			)}
-		</ul>
+
+			<ul className="list-unstyled mt-4">
+				{options.map(
+					(
+						{imagePreviewURL, isActive, name, onClick, subtitle},
+						index
+					) => (
+						<li key={index}>
+							<ClayCard
+								aria-label={name}
+								className={classNames({
+									'page-editor__sidebar__design-options__tab-card--active':
+										isActive,
+								})}
+								displayType="file"
+								onClick={() => {
+									if (!isActive) {
+										onClick();
+									}
+								}}
+								onKeyDown={(event) => {
+									if (event.key === 'Enter' && !isActive) {
+										onClick();
+									}
+								}}
+								role="button"
+								selectable
+								tabIndex="0"
+							>
+								<ClayCard.AspectRatio
+									className="card-item-first"
+									containerAspectRatio="16/9"
+								>
+									{imagePreviewURL ? (
+										<img
+											alt="thumbnail"
+											className="aspect-ratio-item aspect-ratio-item-center-middle aspect-ratio-item-fluid"
+											src={imagePreviewURL}
+										/>
+									) : (
+										<div className="aspect-ratio-item aspect-ratio-item-center-middle aspect-ratio-item-fluid card-type-asset-icon">
+											<ClayIcon symbol={icon} />
+										</div>
+									)}
+
+									{isActive && (
+										<ClaySticker
+											displayType="primary"
+											position="bottom-left"
+										>
+											<ClayIcon symbol="check-circle" />
+										</ClaySticker>
+									)}
+								</ClayCard.AspectRatio>
+
+								<ClayCard.Body>
+									<ClayCard.Row>
+										<div className="autofit-col autofit-col-expand">
+											<section className="autofit-section">
+												<ClayCard.Description displayType="title">
+													{name}
+												</ClayCard.Description>
+
+												{subtitle && (
+													<ClayCard.Description displayType="subtitle">
+														{subtitle}
+													</ClayCard.Description>
+												)}
+											</section>
+										</div>
+									</ClayCard.Row>
+								</ClayCard.Body>
+							</ClayCard>
+						</li>
+					)
+				)}
+			</ul>
+		</div>
 	);
 };
 

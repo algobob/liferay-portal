@@ -77,7 +77,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
-import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
@@ -660,24 +659,6 @@ public class ContentPageEditorDisplayContext {
 				"siteNavigationMenuItemSelectorURL",
 				_getSiteNavigationMenuItemSelectorURL()
 			).put(
-				"styleBookEnabled",
-				() -> {
-					Layout layout = themeDisplay.getLayout();
-
-					Theme theme = layout.getTheme();
-
-					LayoutSet layoutSet = _layoutSetLocalService.fetchLayoutSet(
-						themeDisplay.getSiteGroupId(), false);
-
-					if (Objects.equals(
-							theme.getThemeId(), layoutSet.getThemeId())) {
-
-						return true;
-					}
-
-					return false;
-				}
-			).put(
 				"styleBookEntryId",
 				() -> {
 					Layout layout = themeDisplay.getLayout();
@@ -688,6 +669,8 @@ public class ContentPageEditorDisplayContext {
 				"styleBooks", _getStyleBooks()
 			).put(
 				"themeColorsCssClasses", _getThemeColorsCssClasses()
+			).put(
+				"themeName", _getThemeName()
 			).put(
 				"undoUpdateFormConfigURL",
 				getFragmentEntryActionURL(
@@ -1881,10 +1864,13 @@ public class ContentPageEditorDisplayContext {
 	private List<Map<String, Object>> _getStyleBooks() {
 		ArrayList<Map<String, Object>> styleBooks = new ArrayList<>();
 
-		long groupId = _staging.getLiveGroupId(themeDisplay.getScopeGroupId());
+		Layout layout = themeDisplay.getLayout();
 
-		List<StyleBookEntry> styleBookEntries = _styleBookManager.getStyleBooks(
-			groupId);
+		List<StyleBookEntry> styleBookEntries =
+			_styleBookManager.getStyleBookEntries(
+				themeDisplay.getCompanyId(),
+				_staging.getLiveGroupId(themeDisplay.getScopeGroupId()),
+				layout.getLayoutId(), themeDisplay.getThemeId());
 
 		for (StyleBookEntry styleBookEntry : styleBookEntries) {
 			styleBooks.add(
@@ -1914,6 +1900,12 @@ public class ContentPageEditorDisplayContext {
 			"primary", "success", "danger", "warning", "info", "dark",
 			"gray-dark", "secondary", "light", "lighter", "white"
 		};
+	}
+
+	private String _getThemeName() {
+		Theme theme = themeDisplay.getTheme();
+
+		return theme.getName();
 	}
 
 	private ItemSelectorCriterion _getURLItemSelectorCriterion() {
