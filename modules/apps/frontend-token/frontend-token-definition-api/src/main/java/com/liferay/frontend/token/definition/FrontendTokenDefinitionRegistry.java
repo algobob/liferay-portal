@@ -20,4 +20,7 @@ public interface FrontendTokenDefinitionRegistry {
 	public List<FrontendTokenDefinition> getFrontendTokenDefinitions(
 		long companyId);
 
+	public FrontendTokenDefinition getFrontendTokenDefinition(
+		long companyId, long layoutId, String themeId);
+
 }

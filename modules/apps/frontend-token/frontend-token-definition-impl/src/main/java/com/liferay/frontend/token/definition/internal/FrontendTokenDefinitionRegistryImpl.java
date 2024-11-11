@@ -85,6 +85,11 @@ public class FrontendTokenDefinitionRegistryImpl
 		return frontendTokenDefinitionsList;
 	}
 
+	@Override
+	public FrontendTokenDefinition getFrontendTokenDefinition(long companyId, long layoutId, String themeId) {
+		return _getFrontendTokenDefinition(companyId,_getCETExternalReferenceCode(layoutId), themeId);
+	}
+
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_bundleTracker = new BundleTracker<>(
