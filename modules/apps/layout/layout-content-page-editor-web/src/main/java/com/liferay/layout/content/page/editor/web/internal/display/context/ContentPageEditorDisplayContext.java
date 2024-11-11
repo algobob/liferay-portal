@@ -43,6 +43,7 @@ import com.liferay.layout.content.page.editor.web.internal.constants.ContentPage
 import com.liferay.layout.content.page.editor.web.internal.manager.ContentManager;
 import com.liferay.layout.content.page.editor.web.internal.manager.FragmentCollectionManager;
 import com.liferay.layout.content.page.editor.web.internal.manager.FragmentEntryLinkManager;
+import com.liferay.layout.content.page.editor.web.internal.manager.StyleBookManager;
 import com.liferay.layout.content.page.editor.web.internal.util.MappingContentUtil;
 import com.liferay.layout.content.page.editor.web.internal.util.MappingTypesUtil;
 import com.liferay.layout.content.page.editor.web.internal.util.StyleBookEntryUtil;
@@ -127,9 +128,7 @@ import com.liferay.site.navigation.item.selector.SiteNavigationMenuItemSelectorR
 import com.liferay.site.navigation.item.selector.criterion.SiteNavigationMenuItemSelectorCriterion;
 import com.liferay.staging.StagingGroupHelper;
 import com.liferay.style.book.model.StyleBookEntry;
-import com.liferay.style.book.service.StyleBookEntryLocalService;
 import com.liferay.style.book.util.DefaultStyleBookEntryUtil;
-import com.liferay.style.book.util.comparator.StyleBookEntryNameComparator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -188,8 +187,7 @@ public class ContentPageEditorDisplayContext {
 		SegmentsExperimentRelLocalService segmentsExperimentRelLocalService,
 		SegmentsEntryService segmentsEntryService, Staging staging,
 		StagingGroupHelper stagingGroupHelper,
-		StyleBookEntryLocalService styleBookEntryLocalService,
-		UserLocalService userLocalService,
+		StyleBookManager styleBookManager, UserLocalService userLocalService,
 		WorkflowDefinitionLinkLocalService workflowDefinitionLinkLocalService) {
 
 		_contentPageEditorSidebarPanels = contentPageEditorSidebarPanels;
@@ -219,7 +217,7 @@ public class ContentPageEditorDisplayContext {
 		_segmentsExperimentRelLocalService = segmentsExperimentRelLocalService;
 		_segmentsEntryService = segmentsEntryService;
 		_staging = staging;
-		_styleBookEntryLocalService = styleBookEntryLocalService;
+		_styleBookManager = styleBookManager;
 		_userLocalService = userLocalService;
 		_workflowDefinitionLinkLocalService =
 			workflowDefinitionLinkLocalService;
@@ -1883,11 +1881,10 @@ public class ContentPageEditorDisplayContext {
 	private List<Map<String, Object>> _getStyleBooks() {
 		ArrayList<Map<String, Object>> styleBooks = new ArrayList<>();
 
-		List<StyleBookEntry> styleBookEntries =
-			_styleBookEntryLocalService.getStyleBookEntries(
-				_staging.getLiveGroupId(themeDisplay.getScopeGroupId()),
-				QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				StyleBookEntryNameComparator.getInstance(true));
+		long groupId = _staging.getLiveGroupId(themeDisplay.getScopeGroupId());
+
+		List<StyleBookEntry> styleBookEntries = _styleBookManager.getStyleBooks(
+			groupId);
 
 		for (StyleBookEntry styleBookEntry : styleBookEntries) {
 			styleBooks.add(
@@ -2075,7 +2072,7 @@ public class ContentPageEditorDisplayContext {
 		_segmentsExperimentRelLocalService;
 	private List<Map<String, Object>> _sidebarPanels;
 	private final Staging _staging;
-	private final StyleBookEntryLocalService _styleBookEntryLocalService;
+	private final StyleBookManager _styleBookManager;
 	private ItemSelectorCriterion _urlItemSelectorCriterion;
 	private final UserLocalService _userLocalService;
 	private final WorkflowDefinitionLinkLocalService

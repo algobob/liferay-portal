@@ -31,6 +31,7 @@ import com.liferay.layout.content.page.editor.web.internal.configuration.PageEdi
 import com.liferay.layout.content.page.editor.web.internal.manager.ContentManager;
 import com.liferay.layout.content.page.editor.web.internal.manager.FragmentCollectionManager;
 import com.liferay.layout.content.page.editor.web.internal.manager.FragmentEntryLinkManager;
+import com.liferay.layout.content.page.editor.web.internal.manager.StyleBookManager;
 import com.liferay.layout.content.page.editor.web.internal.util.MappingContentUtil;
 import com.liferay.layout.manager.LayoutLockManager;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
@@ -58,7 +59,6 @@ import com.liferay.segments.service.SegmentsEntryService;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
 import com.liferay.segments.service.SegmentsExperimentRelLocalService;
 import com.liferay.staging.StagingGroupHelper;
-import com.liferay.style.book.service.StyleBookEntryLocalService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,8 +105,7 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 		SegmentsExperimentRelLocalService segmentsExperimentRelLocalService,
 		SegmentsEntryService segmentsEntryService, Staging staging,
 		StagingGroupHelper stagingGroupHelper,
-		StyleBookEntryLocalService styleBookEntryLocalService,
-		UserLocalService userLocalService,
+		StyleBookManager styleBookManager, UserLocalService userLocalService,
 		WorkflowDefinitionLinkLocalService workflowDefinitionLinkLocalService) {
 
 		super(
@@ -122,9 +121,8 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 			portletRequest, portletURLFactory, renderResponse,
 			segmentsConfigurationProvider, segmentsExperienceManager,
 			segmentsExperienceLocalService, segmentsExperimentRelLocalService,
-			segmentsEntryService, staging, stagingGroupHelper,
-			styleBookEntryLocalService, userLocalService,
-			workflowDefinitionLinkLocalService);
+			segmentsEntryService, staging, stagingGroupHelper, styleBookManager,
+			userLocalService, workflowDefinitionLinkLocalService);
 
 		_itemSelector = itemSelector;
 		_pageIsDisplayPage = pageIsDisplayPage;

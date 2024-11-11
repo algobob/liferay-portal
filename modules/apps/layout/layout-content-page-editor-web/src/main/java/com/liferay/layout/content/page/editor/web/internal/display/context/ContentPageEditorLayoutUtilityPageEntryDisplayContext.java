@@ -17,6 +17,7 @@ import com.liferay.layout.content.page.editor.web.internal.configuration.PageEdi
 import com.liferay.layout.content.page.editor.web.internal.manager.ContentManager;
 import com.liferay.layout.content.page.editor.web.internal.manager.FragmentCollectionManager;
 import com.liferay.layout.content.page.editor.web.internal.manager.FragmentEntryLinkManager;
+import com.liferay.layout.content.page.editor.web.internal.manager.StyleBookManager;
 import com.liferay.layout.manager.LayoutLockManager;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryService;
@@ -78,7 +79,7 @@ public class ContentPageEditorLayoutUtilityPageEntryDisplayContext
 		SegmentsEntryService segmentsEntryService, Staging staging,
 		StagingGroupHelper stagingGroupHelper,
 		StyleBookEntryLocalService styleBookEntryLocalService,
-		UserLocalService userLocalService,
+		StyleBookManager styleBookManager, UserLocalService userLocalService,
 		WorkflowDefinitionLinkLocalService workflowDefinitionLinkLocalService) {
 
 		super(
@@ -94,9 +95,8 @@ public class ContentPageEditorLayoutUtilityPageEntryDisplayContext
 			portletRequest, portletURLFactory, renderResponse,
 			segmentsConfigurationProvider, segmentsExperienceManager,
 			segmentsExperienceLocalService, segmentsExperimentRelLocalService,
-			segmentsEntryService, staging, stagingGroupHelper,
-			styleBookEntryLocalService, userLocalService,
-			workflowDefinitionLinkLocalService);
+			segmentsEntryService, staging, stagingGroupHelper, styleBookManager,
+			userLocalService, workflowDefinitionLinkLocalService);
 	}
 
 	@Override

@@ -30,6 +30,7 @@ import com.liferay.layout.content.page.editor.web.internal.constants.ContentPage
 import com.liferay.layout.content.page.editor.web.internal.manager.ContentManager;
 import com.liferay.layout.content.page.editor.web.internal.manager.FragmentCollectionManager;
 import com.liferay.layout.content.page.editor.web.internal.manager.FragmentEntryLinkManager;
+import com.liferay.layout.content.page.editor.web.internal.manager.StyleBookManager;
 import com.liferay.layout.content.page.editor.web.internal.segments.SegmentsExperienceUtil;
 import com.liferay.layout.manager.LayoutLockManager;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
@@ -133,7 +134,7 @@ public class ContentPageLayoutEditorDisplayContext
 		SegmentsEntryService segmentsEntryService, Staging staging,
 		StagingGroupHelper stagingGroupHelper,
 		StyleBookEntryLocalService styleBookEntryLocalService,
-		UserLocalService userLocalService,
+		StyleBookManager styleBookManager, UserLocalService userLocalService,
 		WorkflowDefinitionLinkLocalService workflowDefinitionLinkLocalService) {
 
 		super(
@@ -149,9 +150,8 @@ public class ContentPageLayoutEditorDisplayContext
 			portletRequest, portletURLFactory, renderResponse,
 			segmentsConfigurationProvider, segmentsExperienceManager,
 			segmentsExperienceLocalService, segmentsExperimentRelLocalService,
-			segmentsEntryService, staging, stagingGroupHelper,
-			styleBookEntryLocalService, userLocalService,
-			workflowDefinitionLinkLocalService);
+			segmentsEntryService, staging, stagingGroupHelper, styleBookManager,
+			userLocalService, workflowDefinitionLinkLocalService);
 
 		_assetListEntryLocalService = assetListEntryLocalService;
 		_groupLocalService = groupLocalService;

@@ -19,6 +19,7 @@ import com.liferay.layout.content.page.editor.web.internal.configuration.PageEdi
 import com.liferay.layout.content.page.editor.web.internal.manager.ContentManager;
 import com.liferay.layout.content.page.editor.web.internal.manager.FragmentCollectionManager;
 import com.liferay.layout.content.page.editor.web.internal.manager.FragmentEntryLinkManager;
+import com.liferay.layout.content.page.editor.web.internal.manager.StyleBookManager;
 import com.liferay.layout.manager.LayoutLockManager;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
@@ -103,7 +104,8 @@ public class ContentPageEditorDisplayContextProvider {
 				_segmentsExperienceLocalService,
 				_segmentsExperimentRelLocalService, _segmentsEntryService,
 				_staging, _stagingGroupHelper, _styleBookEntryLocalService,
-				_userLocalService, _workflowDefinitionLinkLocalService);
+				_styleBookManager, _userLocalService,
+				_workflowDefinitionLinkLocalService);
 		}
 
 		if (Objects.equals(className, LayoutUtilityPageEntry.class.getName())) {
@@ -124,7 +126,8 @@ public class ContentPageEditorDisplayContextProvider {
 				_segmentsExperienceLocalService,
 				_segmentsExperimentRelLocalService, _segmentsEntryService,
 				_staging, _stagingGroupHelper, _styleBookEntryLocalService,
-				_userLocalService, _workflowDefinitionLinkLocalService);
+				_styleBookManager, _userLocalService,
+				_workflowDefinitionLinkLocalService);
 		}
 
 		long classPK = GetterUtil.getLong(
@@ -159,7 +162,7 @@ public class ContentPageEditorDisplayContextProvider {
 			new SegmentsExperienceManager(_segmentsExperienceLocalService),
 			_segmentsExperienceLocalService, _segmentsExperimentRelLocalService,
 			_segmentsEntryService, _staging, _stagingGroupHelper,
-			_styleBookEntryLocalService, _userLocalService,
+			_styleBookManager, _userLocalService,
 			_workflowDefinitionLinkLocalService);
 	}
 
@@ -283,6 +286,9 @@ public class ContentPageEditorDisplayContextProvider {
 
 	@Reference
 	private StyleBookEntryLocalService _styleBookEntryLocalService;
+
+	@Reference
+	private StyleBookManager _styleBookManager;
 
 	@Reference
 	private UserLocalService _userLocalService;
