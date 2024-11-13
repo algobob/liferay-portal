@@ -185,13 +185,13 @@ export default function PageDesignOptionsSidebar() {
 const OptionList = ({options = [], icon, type}) => {
 	return (
 		<div>
-			{type === OPTIONS_TYPES.styleBook && !options.length && (
-				<ClayAlert displayType="info" variant="stripe">
+			{type === OPTIONS_TYPES.styleBook && options.length && (
+				<ClayAlert displayType="info" title="Info" variant="stripe">
 					{sub(
 						Liferay.Language.get(
-							'info-only-style-books-based-on-the-frontend-token-definition-provided-by-x-theme-are-visible'
+							'only-style-books-based-on-the-frontend-token-definition-provided-by-x-theme-are-visible'
 						),
-						config.themeName
+						config.pageThemeName
 					)}
 				</ClayAlert>
 			)}

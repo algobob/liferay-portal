@@ -668,6 +668,8 @@ public class ContentPageEditorDisplayContext {
 			).put(
 				"styleBooks", _getStyleBooks()
 			).put(
+				"pageThemeName", _getPageThemeName()
+			).put(
 				"themeColorsCssClasses", _getThemeColorsCssClasses()
 			).put(
 				"themeName", _getThemeName()
@@ -827,6 +829,11 @@ public class ContentPageEditorDisplayContext {
 				"segmentsExperienceId", getSegmentsExperienceId()
 			).build()
 		).build();
+	}
+
+	private String _getPageThemeName() {
+		Theme theme = themeDisplay.getTheme();
+		return theme.getName();
 	}
 
 	public String getPortletNamespace() {
