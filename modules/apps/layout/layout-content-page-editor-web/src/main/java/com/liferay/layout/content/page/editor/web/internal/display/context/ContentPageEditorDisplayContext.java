@@ -610,6 +610,8 @@ public class ContentPageEditorDisplayContext {
 					return list;
 				}
 			).put(
+				"pageThemeName", _getPageThemeName()
+			).put(
 				"pending",
 				() -> {
 					Layout draftLayout = themeDisplay.getLayout();
@@ -667,8 +669,6 @@ public class ContentPageEditorDisplayContext {
 				}
 			).put(
 				"styleBooks", _getStyleBooks()
-			).put(
-				"pageThemeName", _getPageThemeName()
 			).put(
 				"themeColorsCssClasses", _getThemeColorsCssClasses()
 			).put(
@@ -829,11 +829,6 @@ public class ContentPageEditorDisplayContext {
 				"segmentsExperienceId", getSegmentsExperienceId()
 			).build()
 		).build();
-	}
-
-	private String _getPageThemeName() {
-		Theme theme = themeDisplay.getTheme();
-		return theme.getName();
 	}
 
 	public String getPortletNamespace() {
@@ -1763,6 +1758,12 @@ public class ContentPageEditorDisplayContext {
 		}
 
 		return _masterLayoutStructure;
+	}
+
+	private String _getPageThemeName() {
+		Theme theme = themeDisplay.getTheme();
+
+		return theme.getName();
 	}
 
 	private String _getPortletId(HttpServletRequest httpServletRequest) {

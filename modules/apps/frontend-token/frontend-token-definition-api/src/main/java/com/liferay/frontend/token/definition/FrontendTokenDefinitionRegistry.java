@@ -17,10 +17,10 @@ public interface FrontendTokenDefinitionRegistry {
 	public FrontendTokenDefinition getFrontendTokenDefinition(
 		LayoutSet layoutSet);
 
-	public List<FrontendTokenDefinition> getFrontendTokenDefinitions(
-		long companyId);
-
 	public FrontendTokenDefinition getFrontendTokenDefinition(
 		long companyId, long layoutId, String themeId);
+
+	public List<FrontendTokenDefinition> getFrontendTokenDefinitions(
+		long companyId);
 
 }
