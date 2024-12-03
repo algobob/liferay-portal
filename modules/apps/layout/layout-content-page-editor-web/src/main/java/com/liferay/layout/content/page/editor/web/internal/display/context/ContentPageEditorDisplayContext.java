@@ -66,6 +66,7 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.editor.configuration.EditorConfiguration;
 import com.liferay.portal.kernel.editor.configuration.EditorConfigurationFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -87,6 +88,7 @@ import com.liferay.portal.kernel.portlet.url.builder.ResourceURLBuilder;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
+import com.liferay.portal.kernel.service.ThemeLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.service.permission.LayoutPermission;
@@ -680,6 +682,8 @@ public class ContentPageEditorDisplayContext {
 				"styleBooks", _getStyleBooks()
 			).put(
 				"themeColorsCssClasses", _getThemeColorsCssClasses()
+			).put(
+				"themeName", _getThemeName(themeDisplay.getLayout())
 			).put(
 				"undoUpdateFormConfigURL",
 				getFragmentEntryActionURL(
@@ -1848,6 +1852,21 @@ public class ContentPageEditorDisplayContext {
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 				StyleBookEntryNameComparator.getInstance(true));
 
+		if (FeatureFlagManagerUtil.isEnabled(
+				themeDisplay.getCompanyId(), "LPD-30204")) {
+
+			FrontendTokenDefinition frontendTokenDefinition =
+				_frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
+					themeDisplay.getLayout());
+
+			if (frontendTokenDefinition != null) {
+				styleBookEntries =
+					_styleBookEntryLocalService.getStyleBookEntries(
+						_staging.getLiveGroupId(themeDisplay.getScopeGroupId()),
+						frontendTokenDefinition.getThemeId());
+			}
+		}
+
 		for (StyleBookEntry styleBookEntry : styleBookEntries) {
 			styleBooks.add(
 				HashMapBuilder.<String, Object>put(
@@ -1876,6 +1895,23 @@ public class ContentPageEditorDisplayContext {
 			"primary", "success", "danger", "warning", "info", "dark",
 			"gray-dark", "secondary", "light", "lighter", "white"
 		};
+	}
+
+	private String _getThemeName(Layout layout) {
+		FrontendTokenDefinition frontendTokenDefinition =
+			_frontendTokenDefinitionRegistry.getFrontendTokenDefinition(layout);
+		Theme theme = null;
+
+		if (frontendTokenDefinition != null) {
+			theme = ThemeLocalServiceUtil.getTheme(
+				layout.getCompanyId(), layout.getThemeId());
+
+			return theme.getName();
+		}
+
+		theme = themeDisplay.getTheme();
+
+		return theme.getName();
 	}
 
 	private ItemSelectorCriterion _getURLItemSelectorCriterion() {
