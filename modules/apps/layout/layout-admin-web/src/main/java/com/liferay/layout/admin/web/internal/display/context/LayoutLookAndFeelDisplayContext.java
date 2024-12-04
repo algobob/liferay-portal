@@ -21,7 +21,9 @@ import com.liferay.layout.admin.web.internal.item.selector.StyleBookEntryItemSel
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalServiceUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -45,6 +47,7 @@ import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.style.book.model.StyleBookEntry;
+import com.liferay.style.book.service.StyleBookEntryLocalServiceUtil;
 import com.liferay.style.book.util.DefaultStyleBookEntryUtil;
 
 import java.util.List;
@@ -267,6 +270,43 @@ public class LayoutLookAndFeelDisplayContext {
 		}
 
 		return LanguageUtil.get(_httpServletRequest, "styles-by-default");
+	}
+
+	public String getStyleBookWarningMessage() throws PortalException {
+		String key =
+			"only-style-books-compatible-with-the-current-theme-are-shown";
+
+		Layout selLayout = _layoutsAdminDisplayContext.getSelLayout();
+
+		if (selLayout != null) {
+			if (selLayout.getStyleBookEntryId() == 0) {
+				return LanguageUtil.get(_httpServletRequest, key);
+			}
+
+			StyleBookEntry styleBookEntry =
+				StyleBookEntryLocalServiceUtil.getStyleBookEntry(
+					selLayout.getStyleBookEntryId());
+
+			if (styleBookEntry == null) {
+				return LanguageUtil.get(_httpServletRequest, key);
+			}
+
+			if (!Objects.equals(
+					styleBookEntry.getThemeId(), selLayout.getThemeId())) {
+
+				return LanguageUtil.get(
+					_httpServletRequest,
+					StringBundler.concat(
+						"the-style-book-currently-assigned-to-this-page-is-",
+						"incompatible-with-the-theme-applied-you-must-select-",
+						"a-compatible-style-book"));
+			}
+		}
+		else {
+			return StringPool.BLANK;
+		}
+
+		return LanguageUtil.get(_httpServletRequest, key);
 	}
 
 	public List<TabsItem> getTabsItems() {

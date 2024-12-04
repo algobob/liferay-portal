@@ -18,7 +18,16 @@
 
 <%
 LayoutLookAndFeelDisplayContext layoutLookAndFeelDisplayContext = new LayoutLookAndFeelDisplayContext(request, layoutsAdminDisplayContext, liferayPortletResponse);
+
+String styleBookWarningMessage = layoutLookAndFeelDisplayContext.getStyleBookWarningMessage();
 %>
+
+<c:if test="<%= Validator.isNotNull(styleBookWarningMessage) %>">
+	<clay:alert
+		displayType="info"
+		message="<%= styleBookWarningMessage %>"
+	/>
+</c:if>
 
 <div>
 	<react:component
