@@ -44,6 +44,7 @@ import com.liferay.layout.theme.item.selector.criterion.LayoutThemeItemSelectorC
 import com.liferay.layout.util.comparator.LayoutCreateDateComparator;
 import com.liferay.layout.util.comparator.LayoutRelevanceComparator;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.dao.search.EmptyOnClickRowChecker;
@@ -110,6 +111,8 @@ import com.liferay.site.navigation.model.SiteNavigationMenu;
 import com.liferay.site.navigation.service.SiteNavigationMenuLocalServiceUtil;
 import com.liferay.site.navigation.taglib.servlet.taglib.util.BreadcrumbEntryBuilder;
 import com.liferay.site.navigation.taglib.servlet.taglib.util.BreadcrumbEntryListBuilder;
+import com.liferay.style.book.model.StyleBookEntry;
+import com.liferay.style.book.service.StyleBookEntryLocalServiceUtil;
 
 import java.io.IOException;
 
@@ -1266,10 +1269,65 @@ public class LayoutsAdminDisplayContext {
 	}
 
 	public String getStyleBookWarningMessage() throws PortalException {
-		LayoutSet publicLayoutSet = LayoutSetLocalServiceUtil.fetchLayoutSet(
-			getSelGroupId(), false);
+		if (FeatureFlagManagerUtil.isEnabled(
+				themeDisplay.getCompanyId(), "LPD-30204")) {
+
+			String key =
+				"only-style-books-compatible-with-the-current-theme-are-shown";
+
+			if (_selLayout != null) {
+				if (_selLayout.getStyleBookEntryId() == 0) {
+					return LanguageUtil.get(httpServletRequest, key);
+				}
+
+				StyleBookEntry styleBookEntry =
+					StyleBookEntryLocalServiceUtil.getStyleBookEntry(
+						_selLayout.getStyleBookEntryId());
+
+				if (styleBookEntry == null) {
+					return LanguageUtil.get(httpServletRequest, key);
+				}
+
+				String selectedThemeId = ParamUtil.getString(
+					httpServletRequest, "themeId");
+
+				if (Validator.isNotNull(selectedThemeId)) {
+					if (!Objects.equals(
+							styleBookEntry.getThemeId(), selectedThemeId)) {
+
+						return LanguageUtil.get(
+							httpServletRequest,
+							StringBundler.concat(
+								"changing-the-theme-will-unlink-the-current-",
+								"style-book-because-it-is-not-compatible-with-",
+								"the-new-theme"));
+					}
+				}
+				else {
+					if (!Objects.equals(
+							styleBookEntry.getThemeId(),
+							_selLayout.getThemeId())) {
+
+						return LanguageUtil.get(
+							httpServletRequest,
+							StringBundler.concat(
+								"the-style-book-currently-assigned-to-this-",
+								"page-is-incompatible-with-the-theme-applied-",
+								"you-must-select-a-compatible-style-book"));
+					}
+				}
+			}
+			else {
+				return StringPool.BLANK;
+			}
+
+			return LanguageUtil.get(httpServletRequest, key);
+		}
 
 		String themeId = _getThemeId();
+
+		LayoutSet publicLayoutSet = LayoutSetLocalServiceUtil.fetchLayoutSet(
+			getSelGroupId(), false);
 
 		if (Validator.isNull(themeId) ||
 			Objects.equals(publicLayoutSet.getThemeId(), themeId) ||

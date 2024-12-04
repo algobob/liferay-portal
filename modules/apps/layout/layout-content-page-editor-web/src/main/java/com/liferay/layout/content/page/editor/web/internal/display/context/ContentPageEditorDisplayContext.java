@@ -656,6 +656,12 @@ public class ContentPageEditorDisplayContext {
 			).put(
 				"styleBookEnabled",
 				() -> {
+					if (FeatureFlagManagerUtil.isEnabled(
+							themeDisplay.getCompanyId(), "LPD-30204")) {
+
+						return true;
+					}
+
 					Layout layout = themeDisplay.getLayout();
 
 					Theme theme = layout.getTheme();
