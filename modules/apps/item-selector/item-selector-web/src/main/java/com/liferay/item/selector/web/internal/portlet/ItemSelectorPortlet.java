@@ -5,6 +5,7 @@
 
 package com.liferay.item.selector.web.internal.portlet;
 
+import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.ItemSelectorRendering;
 import com.liferay.item.selector.constants.ItemSelectorPortletKeys;
@@ -13,6 +14,7 @@ import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.style.book.service.StyleBookEntryLocalService;
 
 import java.io.IOException;
 
@@ -69,8 +71,19 @@ public class ItemSelectorPortlet extends MVCPortlet {
 
 		localizedItemSelectorRendering.store(renderRequest);
 
+		renderRequest.setAttribute(
+			FrontendTokenDefinitionRegistry.class.getName(),
+			_frontendTokenDefinitionRegistry);
+
+		renderRequest.setAttribute(
+			StyleBookEntryLocalService.class.getName(),
+			_styleBookEntryLocalService);
+
 		super.render(renderRequest, renderResponse);
 	}
+
+	@Reference
+	private FrontendTokenDefinitionRegistry _frontendTokenDefinitionRegistry;
 
 	@Reference
 	private ItemSelector _itemSelector;
@@ -79,5 +92,8 @@ public class ItemSelectorPortlet extends MVCPortlet {
 		target = "(&(release.bundle.symbolic.name=com.liferay.item.selector.web)(&(release.schema.version>=1.0.0)(!(release.schema.version>=2.0.0))))"
 	)
 	private Release _release;
+
+	@Reference
+	private StyleBookEntryLocalService _styleBookEntryLocalService;
 
 }

@@ -11,6 +11,7 @@ import com.liferay.asset.kernel.exception.AssetTagException;
 import com.liferay.client.extension.type.manager.CETManager;
 import com.liferay.dynamic.data.mapping.validator.DDMFormValuesValidationException;
 import com.liferay.friendly.url.exception.DuplicateFriendlyURLEntryException;
+import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.layout.admin.web.internal.configuration.LayoutUtilityPageThumbnailConfiguration;
@@ -197,6 +198,9 @@ public class GroupPagesPortlet extends MVCPortlet {
 
 			renderRequest.setAttribute(CETManager.class.getName(), _cetManager);
 			renderRequest.setAttribute(
+				FrontendTokenDefinitionRegistry.class.getName(),
+				_frontendTokenDefinitionRegistry);
+			renderRequest.setAttribute(
 				ItemSelector.class.getName(), _itemSelector);
 			renderRequest.setAttribute(
 				LayoutUtilityPageThumbnailConfiguration.class.getName(),
@@ -292,6 +296,9 @@ public class GroupPagesPortlet extends MVCPortlet {
 
 	@Reference
 	private CETManager _cetManager;
+
+	@Reference
+	private FrontendTokenDefinitionRegistry _frontendTokenDefinitionRegistry;
 
 	@Reference
 	private GroupProvider _groupProvider;
