@@ -183,6 +183,7 @@ public class PLOEntryLocalServiceImpl extends PLOEntryLocalServiceBaseImpl {
 			return ploEntry;
 		}
 
+		ploEntry.setUserId(userId);
 		ploEntry.setValue(value);
 
 		return updatePLOEntry(ploEntry);
