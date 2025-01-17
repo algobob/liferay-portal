@@ -6,10 +6,13 @@
 package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 
 import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
+import com.liferay.frontend.token.definition.FrontendTokenDefinition;
+import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
 import com.liferay.layout.admin.kernel.model.LayoutTypePortletConstants;
 import com.liferay.layout.constants.LayoutTypeSettingsConstants;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutRevision;
@@ -32,9 +35,12 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.sites.kernel.util.Sites;
+import com.liferay.style.book.model.StyleBookEntry;
+import com.liferay.style.book.service.StyleBookEntryLocalService;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.portlet.ActionRequest;
@@ -238,6 +244,29 @@ public class PublishLayoutMVCActionCommand
 			layout.setLayoutPrototypeUuid(null);
 			layout.setStatus(WorkflowConstants.STATUS_APPROVED);
 
+			if (FeatureFlagManagerUtil.isEnabled(
+					layout.getCompanyId(), "LPD-30204") &&
+				(layout.getStyleBookEntryId() > 0)) {
+
+				StyleBookEntry styleBookEntry =
+					_styleBookEntryLocalService.getStyleBookEntry(
+						layout.getStyleBookEntryId());
+
+				if (styleBookEntry != null) {
+					FrontendTokenDefinition frontendTokenDefinition =
+						_frontendTokenDefinitionRegistry.
+							getFrontendTokenDefinition(layout);
+
+					if ((frontendTokenDefinition != null) &&
+						!Objects.equals(
+							styleBookEntry.getThemeId(),
+							frontendTokenDefinition.getThemeId())) {
+
+						layout.setStyleBookEntryId(0);
+					}
+				}
+			}
+
 			layout = _layoutLocalService.updateLayout(layout);
 
 			_updateLayoutRevision(layout, serviceContext);
@@ -267,6 +296,9 @@ public class PublishLayoutMVCActionCommand
 	}
 
 	@Reference
+	private FrontendTokenDefinitionRegistry _frontendTokenDefinitionRegistry;
+
+	@Reference
 	private LayoutLocalService _layoutLocalService;
 
 	@Reference
@@ -274,6 +306,9 @@ public class PublishLayoutMVCActionCommand
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private StyleBookEntryLocalService _styleBookEntryLocalService;
 
 	@Reference
 	private WorkflowDefinitionLinkLocalService
