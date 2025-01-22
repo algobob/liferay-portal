@@ -348,6 +348,25 @@ public class StyleBookEntryVersionPersistenceTest {
 	}
 
 	@Test
+	public void testCountByG_LikeT() throws Exception {
+		_persistence.countByG_LikeT(RandomTestUtil.nextLong(), "");
+
+		_persistence.countByG_LikeT(0L, "null");
+
+		_persistence.countByG_LikeT(0L, (String)null);
+	}
+
+	@Test
+	public void testCountByG_LikeT_Version() throws Exception {
+		_persistence.countByG_LikeT_Version(
+			RandomTestUtil.nextLong(), "", RandomTestUtil.nextInt());
+
+		_persistence.countByG_LikeT_Version(0L, "null", 0);
+
+		_persistence.countByG_LikeT_Version(0L, (String)null, 0);
+	}
+
+	@Test
 	public void testCountByG_SBEK() throws Exception {
 		_persistence.countByG_SBEK(RandomTestUtil.nextLong(), "");
 
