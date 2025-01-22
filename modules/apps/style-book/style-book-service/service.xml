@@ -53,6 +53,10 @@
 			<finder-column name="groupId" />
 			<finder-column name="styleBookEntryKey" />
 		</finder>
+		<finder name="G_LikeT" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column comparator="LIKE" name="themeId" />
+		</finder>
 	</entity>
 	<exceptions>
 		<exception>DuplicateStyleBookEntryKey</exception>
