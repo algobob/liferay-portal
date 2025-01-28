@@ -192,6 +192,56 @@ public class UserGroup implements Cloneable, Serializable {
 
 	protected String name;
 
+	public com.liferay.headless.admin.user.client.permission.Permission[]
+		getPermissions() {
+
+		return permissions;
+	}
+
+	public void setPermissions(
+		com.liferay.headless.admin.user.client.permission.Permission[]
+			permissions) {
+
+		this.permissions = permissions;
+	}
+
+	public void setPermissions(
+		UnsafeSupplier
+			<com.liferay.headless.admin.user.client.permission.Permission[],
+			 Exception> permissionsUnsafeSupplier) {
+
+		try {
+			permissions = permissionsUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected com.liferay.headless.admin.user.client.permission.Permission[]
+		permissions;
+
+	public RoleBrief[] getRoleBriefs() {
+		return roleBriefs;
+	}
+
+	public void setRoleBriefs(RoleBrief[] roleBriefs) {
+		this.roleBriefs = roleBriefs;
+	}
+
+	public void setRoleBriefs(
+		UnsafeSupplier<RoleBrief[], Exception> roleBriefsUnsafeSupplier) {
+
+		try {
+			roleBriefs = roleBriefsUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected RoleBrief[] roleBriefs;
+
 	public UserAccountBrief[] getUserAccountBriefs() {
 		return userAccountBriefs;
 	}

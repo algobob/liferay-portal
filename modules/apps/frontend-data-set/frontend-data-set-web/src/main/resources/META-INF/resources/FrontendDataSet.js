@@ -576,7 +576,7 @@ const FrontendDataSet = ({
 				selectionType={selectionType}
 				showSearch={showSearch}
 				sidePanelId={dataSetSupportSidePanelId}
-				total={items?.length ?? 0}
+				total={total}
 			/>
 		</div>
 	) : null;
@@ -947,7 +947,7 @@ const FrontendDataSet = ({
 					)}
 
 					<div
-						className="data-set-wrapper"
+						className={`data-set-wrapper visualization-mode-${activeView.contentRenderer}`}
 						data-testid={`visualization-mode-${activeView.name}`}
 						ref={wrapperRef}
 					>

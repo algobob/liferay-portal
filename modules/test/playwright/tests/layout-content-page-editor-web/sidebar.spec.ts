@@ -8,6 +8,7 @@ import {expect, mergeTests} from '@playwright/test';
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
 import {applicationsMenuPageTest} from '../../fixtures/applicationsMenuPageTest';
 import {collectionsPagesTest} from '../../fixtures/collectionsPagesTest';
+import {dataApiHelpersTest} from '../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../fixtures/featureFlagsTest';
 import {fragmentsPagesTest} from '../../fixtures/fragmentPagesTest';
 import {isolatedSiteTest} from '../../fixtures/isolatedSiteTest';
@@ -35,6 +36,7 @@ import getPageDefinition from './utils/getPageDefinition';
 
 const test = mergeTests(
 	apiHelpersTest,
+	dataApiHelpersTest,
 	applicationsMenuPageTest,
 	collectionsPagesTest,
 	featureFlagsTest({
@@ -52,7 +54,7 @@ const test = mergeTests(
 );
 
 const PANELS: SidebarTab[] = [
-	'Fragments and Widgets',
+	'Components',
 	'Browser',
 	'Page Design Options',
 	'Page Rules',
@@ -107,7 +109,7 @@ test('Renders sidebars visible at desktop size and sidebars not visible at small
 
 	await pageEditorPage.goto(layout, site.friendlyUrlPath);
 
-	const panel = page.getByLabel('Fragments and Widgets Panel');
+	const panel = page.getByLabel('Components Panel');
 	const configurationPanel = page.getByLabel('Configuration Panel', {
 		exact: true,
 	});
@@ -146,7 +148,7 @@ test('Checks if sidebars are open or closed depending on Product Menu', async ({
 
 	// Check panels are visible
 
-	const panel = page.getByLabel('Fragments and Widgets Panel');
+	const panel = page.getByLabel('Components Panel');
 	const configurationPanel = page.getByLabel('Configuration Panel', {
 		exact: true,
 	});
@@ -227,9 +229,7 @@ test('Checks sidebar accessibility', async ({
 
 	await page.getByRole('button', {name: 'Close'}).press('Enter');
 
-	await expect(
-		page.getByLabel('Fragments and Widgets', {exact: true})
-	).toBeFocused();
+	await expect(page.getByLabel('Components', {exact: true})).toBeFocused();
 
 	// Check with axe
 
@@ -399,7 +399,7 @@ test.describe('Fragments Panel', () => {
 
 		// Check only published fragment is displayed
 
-		await pageEditorPage.goToSidebarTab('Fragments and Widgets');
+		await pageEditorPage.goToSidebarTab('Components');
 
 		await page
 			.getByRole('menuitem', {
@@ -448,9 +448,9 @@ test.describe('Fragments Panel', () => {
 
 		await pageEditorPage.goto(layout, site.friendlyUrlPath);
 
-		// Open the "Fragments and Widgets" panel
+		// Open the "Components" panel
 
-		await pageEditorPage.goToSidebarTab('Fragments and Widgets');
+		await pageEditorPage.goToSidebarTab('Components');
 
 		// Find the search input and type some text
 
@@ -485,9 +485,9 @@ test.describe('Fragments Panel', () => {
 
 			await pageEditorPage.goto(layout, site.friendlyUrlPath);
 
-			// Open the "Fragments and Widgets" panel
+			// Open the "Components" panel
 
-			await pageEditorPage.goToSidebarTab('Fragments and Widgets');
+			await pageEditorPage.goToSidebarTab('Components');
 
 			// Assert favorite section is empty
 
@@ -499,7 +499,13 @@ test.describe('Fragments Panel', () => {
 
 			// Switch to card view and add "External Video" fragment as favorite
 
-			await page.getByTitle('Switch to Card View').click();
+			await clickAndExpectToBeVisible({
+				autoClick: true,
+				target: page.getByRole('menuitem', {
+					name: 'Switch to Card View',
+				}),
+				trigger: page.getByRole('button', {name: 'Components Options'}),
+			});
 
 			await page.getByLabel('Mark External Video as Favorite').click();
 
@@ -538,7 +544,7 @@ test.describe('Fragments Panel', () => {
 
 			// Go to the Widget tab a select one widget as favorite
 
-			await pageEditorPage.goToSidebarTab('Fragments and Widgets');
+			await pageEditorPage.goToSidebarTab('Components');
 
 			await page.getByRole('tab', {exact: true, name: 'Widgets'}).click();
 
@@ -645,11 +651,30 @@ test.describe('Fragments Panel', () => {
 			title: getRandomString(),
 		});
 
-		await pageEditorPage.goto(layout, site.friendlyUrlPath);
+		const company =
+			await apiHelpers.jsonWebServicesCompany.getCompanyByWebId(
+				'liferay.com'
+			);
 
-		// Open the "Fragments and Widgets" and get the first set of fragments
+		const user1 = await createUserWithPermissions({
+			apiHelpers,
+			rolePermissions: [
+				{
+					actionIds: ['UPDATE'],
+					primaryKey: company.companyId,
+					resourceName: 'com.liferay.portal.kernel.model.Layout',
+					scope: 1,
+				},
+			],
+		});
 
-		await pageEditorPage.goToSidebarTab('Fragments and Widgets');
+		apiHelpers.data.push({id: user1.id, type: 'userAccount'});
+
+		await pageEditorPage.goto(layout, site.friendlyUrlPath, user1.id);
+
+		// Open the "Components" and get the first set of fragments
+
+		await pageEditorPage.goToSidebarTab('Components');
 
 		const tabpanel = page
 			.locator('.page-editor__sidebar__fragments-widgets-panel')
@@ -673,7 +698,11 @@ test.describe('Fragments Panel', () => {
 
 		// Open "Reorder Sets" modal and reorder the first set of fragments
 
-		await page.getByTitle('Reorder Sets', {exact: true}).click();
+		await clickAndExpectToBeVisible({
+			autoClick: true,
+			target: page.getByRole('menuitem', {name: 'Reorder Sets'}),
+			trigger: page.getByRole('button', {name: 'Components Options'}),
+		});
 
 		const modal = page.locator('.modal-body');
 
@@ -709,7 +738,7 @@ test.describe('Fragments Panel', () => {
 
 		// Refresh the page and check that order is maintained
 
-		await pageEditorPage.goto(layout, site.friendlyUrlPath);
+		await pageEditorPage.goto(layout, site.friendlyUrlPath, user1.id);
 
 		await expect(fragmentSets.nth(2)).toContainText(firstFragmentSet);
 
@@ -724,7 +753,7 @@ test.describe('Fragments Panel', () => {
 			title: getRandomString(),
 		});
 
-		await widgetPagePage.goto(widgetLayout, site.friendlyUrlPath);
+		await widgetPagePage.goto(widgetLayout, site.friendlyUrlPath, user1.id);
 
 		await widgetPagePage.openAddPanel();
 
@@ -736,12 +765,7 @@ test.describe('Fragments Panel', () => {
 
 		// Check that a new user with update permissions cannot see the changes
 
-		const company =
-			await apiHelpers.jsonWebServicesCompany.getCompanyByWebId(
-				'liferay.com'
-			);
-
-		const user = await createUserWithPermissions({
+		const user2 = await createUserWithPermissions({
 			apiHelpers,
 			rolePermissions: [
 				{
@@ -753,9 +777,9 @@ test.describe('Fragments Panel', () => {
 			],
 		});
 
-		await performUserSwitch(page, user.alternateName);
+		apiHelpers.data.push({id: user2.id, type: 'userAccount'});
 
-		await widgetPagePage.goto(widgetLayout, site.friendlyUrlPath);
+		await widgetPagePage.goto(widgetLayout, site.friendlyUrlPath, user2.id);
 
 		await widgetPagePage.openAddPanel();
 
@@ -778,7 +802,7 @@ test.describe('Fragments Panel', () => {
 
 			// Change the view of the fragments to Cards
 
-			await pageEditorPage.goToSidebarTab('Fragments and Widgets');
+			await pageEditorPage.goToSidebarTab('Components');
 
 			const firstSetList = page
 				.locator('.page-editor__collapse ul')
@@ -788,7 +812,13 @@ test.describe('Fragments Panel', () => {
 				/page-editor__fragments-widgets__tab-collection-list/
 			);
 
-			await page.getByTitle('Switch to Card View').click();
+			await clickAndExpectToBeVisible({
+				autoClick: true,
+				target: page.getByRole('menuitem', {
+					name: 'Switch to Card View',
+				}),
+				trigger: page.getByRole('button', {name: 'Components Options'}),
+			});
 
 			// Open Cookie Banner collapse
 
@@ -805,7 +835,7 @@ test.describe('Fragments Panel', () => {
 
 			await pageEditorPage.goto(layout, site.friendlyUrlPath);
 
-			await pageEditorPage.goToSidebarTab('Fragments and Widgets');
+			await pageEditorPage.goToSidebarTab('Components');
 
 			await expect(firstSetList).toHaveClass(
 				/page-editor__fragments-widgets__tab-collection-cards/
@@ -815,7 +845,13 @@ test.describe('Fragments Panel', () => {
 
 			// Reset the panel
 
-			await page.getByTitle('Switch to List View').click();
+			await clickAndExpectToBeVisible({
+				autoClick: true,
+				target: page.getByRole('menuitem', {
+					name: 'Switch to List View',
+				}),
+				trigger: page.getByRole('button', {name: 'Components Options'}),
+			});
 
 			await menuDisplayFragmentSet.click();
 		}
@@ -837,7 +873,7 @@ test.describe('Fragments Panel', () => {
 
 			// Go to the Fragments and Widget panel
 
-			await pageEditorPage.goToSidebarTab('Fragments and Widgets');
+			await pageEditorPage.goToSidebarTab('Components');
 
 			const fragment = page
 				.locator('.page-editor__fragments-widgets__tab-list-item')
@@ -905,7 +941,7 @@ test.describe('Fragments Panel', () => {
 
 			// Try to add the fragment
 
-			await pageEditorPage.goToSidebarTab('Fragments and Widgets');
+			await pageEditorPage.goToSidebarTab('Components');
 
 			const header = page.getByRole('menuitem', {
 				exact: true,
@@ -1787,6 +1823,71 @@ test.describe('Page Contents Panel', () => {
 
 				await expect(iframe.getByText(layoutTitle)).toBeVisible();
 			}).toPass();
+		}
+	);
+
+	test(
+		'When multiple fragments are hidden with "Hide Fragments", the action changes to "Show Fragments"',
+		{
+			tag: '@LPD-46809',
+		},
+		async ({apiHelpers, page, pageEditorPage, site}) => {
+
+			// Create a page with two Heading fragments
+
+			const firstHeadingId = getRandomString();
+
+			const firstHeadingDefinition = getFragmentDefinition({
+				id: firstHeadingId,
+				key: 'BASIC_COMPONENT-heading',
+			});
+
+			const secondHeadingId = getRandomString();
+
+			const secondHeadingDefinition = getFragmentDefinition({
+				id: secondHeadingId,
+				key: 'BASIC_COMPONENT-heading',
+			});
+
+			const layoutTitle = getRandomString();
+
+			const layout = await apiHelpers.headlessDelivery.createSitePage({
+				pageDefinition: getPageDefinition([
+					firstHeadingDefinition,
+					secondHeadingDefinition,
+				]),
+				siteId: site.id,
+				title: layoutTitle,
+			});
+
+			// Go to edit mode and select both fragments
+
+			await pageEditorPage.goto(layout, site.friendlyUrlPath);
+
+			await pageEditorPage.goToSidebarTab('Browser');
+
+			await pageEditorPage.selectFragment(firstHeadingId);
+
+			await page.keyboard.down('Control');
+
+			await pageEditorPage.selectFragment(secondHeadingId);
+
+			await page.keyboard.up('Control');
+
+			//  Open the Action dropdown and select "Hide Fragments"
+
+			await clickAndExpectToBeVisible({
+				autoClick: true,
+				target: page.getByRole('menuitem', {name: 'Hide Fragments'}),
+				trigger: page.getByLabel('Actions for Selected Items'),
+			});
+
+			// Open again the Action dropdown to check that the "Show Fragments" action is shown
+
+			await clickAndExpectToBeVisible({
+				target: page.getByRole('menuitem', {name: 'Show Fragments'}),
+				trigger: page.getByLabel('Actions for Selected Items'),
+			});
 		}
 	);
 });

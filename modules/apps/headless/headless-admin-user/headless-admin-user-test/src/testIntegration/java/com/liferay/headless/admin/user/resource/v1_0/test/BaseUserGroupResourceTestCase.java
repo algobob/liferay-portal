@@ -1404,6 +1404,22 @@ public abstract class BaseUserGroupResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("permissions", additionalAssertFieldName)) {
+				if (userGroup.getPermissions() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("roleBriefs", additionalAssertFieldName)) {
+				if (userGroup.getRoleBriefs() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals(
 					"userAccountBriefs", additionalAssertFieldName)) {
 
@@ -1618,6 +1634,28 @@ public abstract class BaseUserGroupResourceTestCase {
 			if (Objects.equals("name", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						userGroup1.getName(), userGroup2.getName())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("permissions", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						userGroup1.getPermissions(),
+						userGroup2.getPermissions())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("roleBriefs", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						userGroup1.getRoleBriefs(),
+						userGroup2.getRoleBriefs())) {
 
 					return false;
 				}
@@ -1969,6 +2007,16 @@ public abstract class BaseUserGroupResourceTestCase {
 			}
 
 			return sb.toString();
+		}
+
+		if (entityFieldName.equals("permissions")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("roleBriefs")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
 		}
 
 		if (entityFieldName.equals("userAccountBriefs")) {

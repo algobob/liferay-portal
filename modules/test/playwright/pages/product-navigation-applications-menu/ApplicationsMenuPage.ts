@@ -17,6 +17,7 @@ export class ApplicationsMenuPage {
 	private readonly blueprintsItem: Locator;
 	private readonly clientExtensionsLink: Locator;
 	private readonly commerceChannelsMenuItem: Locator;
+	private readonly commerceCurrenciesMenuItem: Locator;
 	private readonly commerceDiscountsMenuItem: Locator;
 	private readonly commerceOrdersMenuItem: Locator;
 	private readonly commercePanelButton: Locator;
@@ -24,6 +25,7 @@ export class ApplicationsMenuPage {
 	private readonly commerceReturnsMenuItem: Locator;
 	private readonly commerceShipmentsMenuItem: Locator;
 	private readonly commerceSpecificationsMenuItem: Locator;
+	private readonly commerceTaxCategoriesMenuItem: Locator;
 	private readonly componentsMenuItem: Locator;
 	private readonly controlPanelButton: Locator;
 	private readonly countriesManagementItem: Locator;
@@ -93,6 +95,10 @@ export class ApplicationsMenuPage {
 			exact: true,
 			name: 'Channels',
 		});
+		this.commerceCurrenciesMenuItem = page.getByRole('menuitem', {
+			exact: true,
+			name: 'Currencies',
+		});
 		this.commerceDiscountsMenuItem = page.getByRole('menuitem', {
 			exact: true,
 			name: 'Discounts',
@@ -122,6 +128,10 @@ export class ApplicationsMenuPage {
 		this.commerceSpecificationsMenuItem = page.getByRole('menuitem', {
 			exact: true,
 			name: 'Specifications',
+		});
+		this.commerceTaxCategoriesMenuItem = page.getByRole('menuitem', {
+			exact: true,
+			name: 'Tax Categories',
 		});
 		this.componentsMenuItem = page.getByRole('menuitem', {
 			exact: true,
@@ -422,6 +432,11 @@ export class ApplicationsMenuPage {
 		await this.commerceChannelsMenuItem.click();
 	}
 
+	async goToCommerceCurrencies(checkTabVisibility = true) {
+		await this.goToCommercePanel(checkTabVisibility);
+		await this.commerceCurrenciesMenuItem.click();
+	}
+
 	async goToCommerceDiscounts() {
 		await this.goToCommercePanel();
 		await this.commerceDiscountsMenuItem.click();
@@ -455,6 +470,12 @@ export class ApplicationsMenuPage {
 	async goToCommerceSpecifications() {
 		await this.goToCommercePanel();
 		await this.commerceSpecificationsMenuItem.click();
+	}
+
+	async goToCommerceTaxCategories(checkTabVisibility = true) {
+		await this.goto();
+		await this.goToCommercePanel(checkTabVisibility);
+		await this.commerceTaxCategoriesMenuItem.click();
 	}
 
 	async goToPayments(checkTabVisibility = true) {

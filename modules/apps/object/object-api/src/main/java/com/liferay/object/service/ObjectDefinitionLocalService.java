@@ -89,7 +89,7 @@ public interface ObjectDefinitionLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public ObjectDefinition addObjectDefinition(
 			String externalReferenceCode, long userId, long objectFolderId,
-			boolean modifiable, boolean system)
+			boolean modifiable, String scope, boolean system)
 		throws PortalException;
 
 	@Indexable(type = IndexableType.REINDEX)
@@ -172,8 +172,6 @@ public interface ObjectDefinitionLocalService
 		ObjectDefinition objectDefinition);
 
 	public void deployObjectDefinition(ObjectDefinition objectDefinition);
-
-	public void deployObjectDefinitions();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public <T> T dslQuery(DSLQuery dslQuery);

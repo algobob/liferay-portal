@@ -265,8 +265,8 @@ export default {
 	'liferay-self-hosted': 'Liferay Self-Hosted',
 	'limit-reached': 'Limit Reached',
 	'list-with-latest-published-apps': 'List with latest published apps',
-	'lorem-ipsum-dolor-sit-amet-consectetur':
-		'Lorem ipsum dolor sit amet consectetur.',
+	'login-as-a-user-that-has-access-to-a-project-or-contact-your-project-administrator-to-add-you-to-a-project.':
+		'Login as a user that has access to a project or contact your project administrator to add you to a project.',
 	'mac-addresses': 'Mac Addresses',
 	'manage': 'Manage',
 	'manage-all-your-app-purchases-and-subscriptions-in-one-place-read-other-users-reviews-get-notifications-when-updates-are-available-and-get-the-most-out-of-our-apps-catalog':
@@ -373,6 +373,8 @@ export default {
 		'Review the new publisher info and the Liferay Marketplace terms before proceeding',
 	'save-as-a-draft-exit': 'Save as a draft & exit',
 	'save-as-draft': 'Save as Draft',
+	'save-this-address-for-future-orders':
+		'Save this address for future orders',
 	'search': 'Search',
 	'select-a-file': 'Select a file',
 	'select-a-local-file-to-upload': 'Select a local file to upload',
@@ -410,8 +412,8 @@ export default {
 	'subtotal-discount': 'Subtotal Discount',
 	'success': 'success',
 	'summary': 'Summary',
-	'support-email': 'Support Email',
-	'support-phone': 'Support Phone',
+	'support-email-address': 'Support Email Address',
+	'support-phone-number': 'Support Phone Number',
 	'support-url': 'Support URL',
 	'supported-version': 'Supported Version',
 	'tags': 'Tags',
@@ -439,8 +441,8 @@ export default {
 		'The DXP app is module-based and is compatible with 7.4 builds of Liferay DXP.',
 	'the-dxp-app-is-module-based-and-is-compatible-with-7-4-builds-of-liferay-dxp-self-managed-liferay-cloud-formerly-dxp-cloud':
 		'The DXP app is module-based and is compatible with 7.4 builds of Liferay Self-Managed.',
-	'the-installation-process-is-ongoing-and-may-take-some-time-navigating-to-other-sections-will-not-cancel-the-process':
-		'The installation process is ongoing and may take some time....Navigating to other sections will not cancel the process.',
+	'the-installation-process-is-ongoing-and-may-take-some-time':
+		'The installation process is ongoing and may take some time. Navigating to other sections will not cancel the process.',
 	'the-installation-process-is-underway-and-should-be-completed-shortly':
 		'The installation process is underway and should be completed shortly...',
 	'the-liferay-marketplace-gives-you-the-opportunity-to-monetize-your-app-or-solutions-from-a-single-use-case-to-many-while-engaging-with-new-customer-opportunities-and-generating-ongoing-revenue':
@@ -460,6 +462,8 @@ export default {
 		'This is the first version of the app to be published',
 	'this-key-is-expired-and-cannot-be-downloaded':
 		'This key is expired and cannot be downloaded.',
+	'this-may-restrict-the-functionality-available-to-you':
+		'This may restrict the functionality available to you.',
 	'this-order-must-be-completed-before-downloading-this-app.':
 		'This order must be completed before downloading this app.',
 	'this-product-is-no-longer-available':
@@ -536,10 +540,8 @@ export default {
 		'You can view your app in Cloud Console or go back to My Apps.',
 	'you-cannot-upload-more-than-x-files':
 		'You cannot upload more than {0} files.',
-	'you-currently-do-not-have-access-to-any-cloud-projects-please-login-as-a-user-that-has-access-to-a-project-or-contact-your-project-administrator-to-add-you-to-a-project':
-		'You currently do not have access to any Cloud Projects. Please login as a user that has access to a project or contact your project administrator to add you to a project.',
-	'you-currently-do-not-have-access-to-any-cloud-projects-which-may-restrict-the-functionalities-available-to-you':
-		'You currently do not have access to any Cloud Projects, which may restrict the functionalities available to you.',
+	'you-do-not-have-access-to-cloud-project':
+		'You do not have access to a cloud project.',
 	'your-request-completed-successfully':
 		'Your request completed successfully',
 	'zip-files-must-be-in-universal-file-format-archive-uffa-the-specially-structured-zip-encoded-archive-used-to-package-client-extension-project-outputs-this-format-must-support-the-following-use-cases-deliver-batch-engine-data-files-compatible-with-all-deployment-targets-deliver-dxp-configuration-resource-compatible-with-all-deployment-targets-deliver-static-resources-compatible-with-all-deployment-targets-deliver-the-infrastructure-metadata-necessary-to-deploy-to-lxc-sm-for-more-information-see':

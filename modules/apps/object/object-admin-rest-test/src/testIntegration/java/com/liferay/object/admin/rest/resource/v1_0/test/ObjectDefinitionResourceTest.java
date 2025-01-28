@@ -38,8 +38,10 @@ import com.liferay.object.model.ObjectFolder;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFolderLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
@@ -48,10 +50,12 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.util.HTTPTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
@@ -139,6 +143,31 @@ public class ObjectDefinitionResourceTest
 		Assert.assertEquals(
 			"/o/c/" + objectDefinitionPluralName,
 			objectDefinition.getRestContextPath());
+	}
+
+	@Override
+	@Test
+	public void testGetObjectDefinitionByExternalReferenceCode()
+		throws Exception {
+
+		super.testGetObjectDefinitionByExternalReferenceCode();
+
+		ObjectDefinition objectDefinition =
+			testGetObjectDefinitionsPage_addObjectDefinition(
+				randomObjectDefinition());
+
+		JSONObject jsonObject = HTTPTestUtil.invokeToJSONObject(
+			null,
+			StringBundler.concat(
+				"object-admin/v1.0/object-definitions",
+				"/by-external-reference-code/",
+				objectDefinition.getExternalReferenceCode(),
+				"?nestedFields=objectFields"),
+			Http.Method.GET);
+
+		JSONArray jsonArray = jsonObject.getJSONArray("objectFields");
+
+		Assert.assertEquals(jsonArray.toString(), 7, jsonArray.length());
 	}
 
 	@Override
@@ -526,6 +555,7 @@ public class ObjectDefinitionResourceTest
 		assertValid(postObjectDefinition);
 	}
 
+	@FeatureFlags("LPD-32050")
 	@Override
 	@Test
 	public void testPutObjectDefinition() throws Exception {
@@ -693,6 +723,93 @@ public class ObjectDefinitionResourceTest
 							WorkflowConstants.STATUS_APPROVED));
 				}
 			});
+
+		// Enable localization
+
+		randomObjectDefinition = randomObjectDefinition();
+
+		randomObjectDefinition.setObjectFields(
+			new ObjectField[] {
+				new ObjectField() {
+					{
+						businessType = BusinessType.TEXT;
+						DBType = ObjectField.DBType.create("String");
+						label = Collections.singletonMap("en_US", "Column");
+						localized = true;
+						name = StringUtil.randomId();
+					}
+				}
+			});
+		randomObjectDefinition.setStatus(
+			() -> new Status() {
+				{
+					code = WorkflowConstants.STATUS_APPROVED;
+					label = WorkflowConstants.getStatusLabel(
+						WorkflowConstants.STATUS_APPROVED);
+					label_i18n = _language.get(
+						LanguageResources.getResourceBundle(
+							LocaleUtil.getDefault()),
+						WorkflowConstants.getStatusLabel(
+							WorkflowConstants.STATUS_APPROVED));
+				}
+			});
+
+		postObjectDefinition = testPostObjectDefinition_addObjectDefinition(
+			randomObjectDefinition);
+
+		Assert.assertTrue(postObjectDefinition.getEnableLocalization());
+
+		ObjectField[] localizedObjectFields = ArrayUtil.filter(
+			postObjectDefinition.getObjectFields(), ObjectField::getLocalized);
+
+		Assert.assertEquals(
+			Arrays.toString(localizedObjectFields), 1,
+			localizedObjectFields.length);
+
+		postObjectDefinition.setObjectFields(
+			new ObjectField[] {
+				new ObjectField() {
+					{
+						businessType = BusinessType.TEXT;
+						DBType = ObjectField.DBType.create("String");
+						label = Collections.singletonMap("en_US", "Column");
+						localized = false;
+						name = StringUtil.randomId();
+					}
+				}
+			});
+
+		postObjectDefinition = objectDefinitionResource.putObjectDefinition(
+			postObjectDefinition.getId(), postObjectDefinition);
+
+		Assert.assertTrue(postObjectDefinition.getEnableLocalization());
+
+		localizedObjectFields = ArrayUtil.filter(
+			postObjectDefinition.getObjectFields(), ObjectField::getLocalized);
+
+		Assert.assertEquals(
+			Arrays.toString(localizedObjectFields), 0,
+			localizedObjectFields.length);
+
+		postObjectDefinition.setObjectFields(
+			new ObjectField[] {
+				new ObjectField() {
+					{
+						businessType = BusinessType.TEXT;
+						DBType = ObjectField.DBType.create("String");
+						label = Collections.singletonMap("en_US", "Column");
+						localized = true;
+						name = StringUtil.randomId();
+					}
+				}
+			});
+
+		localizedObjectFields = ArrayUtil.filter(
+			postObjectDefinition.getObjectFields(), ObjectField::getLocalized);
+
+		Assert.assertEquals(
+			Arrays.toString(localizedObjectFields), 1,
+			localizedObjectFields.length);
 
 		// Modifiable system object definition
 

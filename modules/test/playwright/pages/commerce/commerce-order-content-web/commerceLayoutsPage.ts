@@ -59,6 +59,7 @@ export class CommerceLayoutsPage {
 	readonly orderItemCardButton: Locator;
 	readonly page: Page;
 	readonly pageEditorCollectionItem: Locator;
+	readonly pageEditorElement: (selector: string) => Locator;
 	readonly pageEditorText: (text: RegExp | string) => Locator;
 	readonly pagesMenuItem: Locator;
 	readonly pageTemplatesMenuItem: Locator;
@@ -176,7 +177,7 @@ export class CommerceLayoutsPage {
 		this.firstFragment = page.locator('#page-editor div').nth(2);
 		this.fragmentsAndWidgetsTab = page.getByRole('tab', {
 			exact: true,
-			name: 'Fragments and Widgets',
+			name: 'Components',
 		});
 		this.fragmentMenuItem = (itemName: string) =>
 			page.getByRole('menuitem', {
@@ -197,9 +198,9 @@ export class CommerceLayoutsPage {
 		);
 		this.infoBoxFieldSelect = page.getByLabel('Field', {exact: true});
 		this.infoBoxLabelInput = page.getByLabel('Label', {exact: true});
-		this.infoBoxShippingMethodAlert = page.getByText('are no available');
-		this.infoBoxShippingMethodSelect = page.getByLabel('Choose Courier');
 		this.infoBoxReadOnlyToggle = page.getByLabel('Read Only');
+		this.infoBoxShippingMethodAlert = page.getByText('are no available');
+		this.infoBoxShippingMethodSelect = page.getByLabel('Choose Carrier');
 		this.infoBoxValue = (name: string) => page.getByText(name);
 		this.inputTextArea = page.getByRole('textbox');
 		this.inputTextbox = (name: string) =>
@@ -221,8 +222,10 @@ export class CommerceLayoutsPage {
 			.getByRole('button', {name: 'Select Order Items'});
 		this.page = page;
 		this.pageEditorCollectionItem = page
-			.locator('.page-editor__collection-item__border')
+			.locator('.page-editor__collection-item')
 			.first();
+		this.pageEditorElement = (selector: string) =>
+			page.locator('#page-editor').locator(selector);
 		this.pageEditorText = (text: RegExp | string) =>
 			page.locator('#page-editor').getByText(text);
 		this.pagesMenuItem = page
@@ -467,6 +470,12 @@ export class CommerceLayoutsPage {
 		}
 
 		if (
+			(await this.closeProductMenuButton.isVisible()) &&
+			(await this.pageTemplatesMenuItem.isVisible())
+		) {
+			return;
+		}
+		else if (
 			(await this.closeProductMenuButton.isVisible()) &&
 			(await this.pageTemplatesMenuItem.isHidden())
 		) {

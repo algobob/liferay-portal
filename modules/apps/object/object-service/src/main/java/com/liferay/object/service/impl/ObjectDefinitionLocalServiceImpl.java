@@ -10,6 +10,7 @@ import com.liferay.account.service.AccountEntryOrganizationRelLocalService;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.fragment.cache.FragmentEntryLinkCache;
 import com.liferay.fragment.model.FragmentEntryLink;
+import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.layout.model.LayoutClassedModelUsage;
 import com.liferay.layout.service.LayoutClassedModelUsageLocalService;
 import com.liferay.object.constants.ObjectDefinitionConstants;
@@ -209,7 +210,7 @@ public class ObjectDefinitionLocalServiceImpl
 	@Override
 	public ObjectDefinition addObjectDefinition(
 			String externalReferenceCode, long userId, long objectFolderId,
-			boolean modifiable, boolean system)
+			boolean modifiable, String scope, boolean system)
 		throws PortalException {
 
 		_validateExternalReferenceCode(externalReferenceCode, system);
@@ -232,7 +233,7 @@ public class ObjectDefinitionLocalServiceImpl
 		objectDefinition.setModifiable(modifiable);
 		objectDefinition.setName(externalReferenceCode);
 		objectDefinition.setPluralLabel(externalReferenceCode);
-		objectDefinition.setScope(ObjectDefinitionConstants.SCOPE_COMPANY);
+		objectDefinition.setScope(scope);
 		objectDefinition.setStorageType(
 			ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT);
 		objectDefinition.setSystem(system);
@@ -523,12 +524,26 @@ public class ObjectDefinitionLocalServiceImpl
 						objectDefinition.getCompanyId(),
 						objectDefinition.getClassName());
 
+					_friendlyURLEntryLocalService.
+						deleteCompanyFriendlyURLEntries(
+							objectDefinition.getCompanyId(),
+							_classNameLocalService.getClassNameId(
+								objectDefinition.getClassName()));
+
 					_deleteFromTable(objectDefinition.getDBTableName());
 
 					_deleteFromTable(
 						objectDefinition.getExtensionDBTableName());
 
-					if (objectDefinition.isEnableLocalization()) {
+					List<ObjectField> localizedObjectFields =
+						_objectFieldLocalService.getLocalizedObjectFields(
+							objectDefinition.getObjectDefinitionId());
+
+					if ((!FeatureFlagManagerUtil.isEnabled(
+							objectDefinition.getCompanyId(), "LPD-32050") &&
+						 objectDefinition.isEnableLocalization()) ||
+						!localizedObjectFields.isEmpty()) {
+
 						_deleteFromTable(
 							objectDefinition.getLocalizationDBTableName());
 					}
@@ -595,7 +610,10 @@ public class ObjectDefinitionLocalServiceImpl
 			_dropTable(objectDefinition.getDBTableName());
 			_dropTable(objectDefinition.getExtensionDBTableName());
 
-			if (objectDefinition.isEnableLocalization()) {
+			if (FeatureFlagManagerUtil.isEnabled(
+					objectDefinition.getCompanyId(), "LPD-32050") ||
+				objectDefinition.isEnableLocalization()) {
+
 				_dropTable(objectDefinition.getLocalizationDBTableName());
 			}
 
@@ -663,20 +681,6 @@ public class ObjectDefinitionLocalServiceImpl
 						objectDefinition));
 			}
 		}
-	}
-
-	@Override
-	public void deployObjectDefinitions() {
-		_companyLocalService.forEachCompanyId(
-			companyId -> {
-				List<ObjectDefinition> objectDefinitions =
-					objectDefinitionLocalService.getObjectDefinitions(
-						companyId, WorkflowConstants.STATUS_APPROVED);
-
-				for (ObjectDefinition objectDefinition : objectDefinitions) {
-					deployObjectDefinition(objectDefinition);
-				}
-			});
 	}
 
 	@Override
@@ -1403,6 +1407,8 @@ public class ObjectDefinitionLocalServiceImpl
 			enableComments, modifiable, storageType, system);
 		_validateEnableFriendlyURLCustomization(
 			enableFriendlyURLCustomization, modifiable, storageType, system);
+		_validateEnableLocalization(
+			user.getCompanyId(), enableLocalization, modifiable);
 		_validateLabel(labelMap);
 		_validateName(0, user.getCompanyId(), modifiable, name, system);
 		_validatePluralLabel(pluralLabelMap);
@@ -1890,7 +1896,9 @@ public class ObjectDefinitionLocalServiceImpl
 			_objectFieldPersistence.findByObjectDefinitionId(
 				objectDefinition.getObjectDefinitionId());
 
-		if (!objectDefinition.isEnableLocalization() &&
+		if (!FeatureFlagManagerUtil.isEnabled(
+				objectDefinition.getCompanyId(), "LPD-32050") &&
+			!objectDefinition.isEnableLocalization() &&
 			ListUtil.exists(objectFields, ObjectFieldModel::isLocalized)) {
 
 			throw new ObjectDefinitionEnableLocalizationException(
@@ -2175,6 +2183,9 @@ public class ObjectDefinitionLocalServiceImpl
 		_validateEnableFriendlyURLCustomization(
 			enableFriendlyURLCustomization, objectDefinition.isModifiable(),
 			objectDefinition.getStorageType(), objectDefinition.isSystem());
+		_validateEnableLocalization(
+			objectDefinition.getCompanyId(), enableLocalization,
+			objectDefinition.isModifiable());
 		_validateEnableObjectEntryHistory(
 			objectDefinition.isEnableObjectEntryHistory() !=
 				enableObjectEntryHistory,
@@ -2505,6 +2516,25 @@ public class ObjectDefinitionLocalServiceImpl
 		}
 	}
 
+	private void _validateEnableLocalization(
+			long companyId, boolean enableLocalization, boolean modifiable)
+		throws PortalException {
+
+		if (enableLocalization && !modifiable) {
+			throw new ObjectDefinitionEnableLocalizationException(
+				"Enable localization is not allowed for unmodifiable object " +
+					"definitions");
+		}
+
+		if (FeatureFlagManagerUtil.isEnabled(companyId, "LPD-32050") &&
+			!enableLocalization && modifiable) {
+
+			throw new ObjectDefinitionEnableLocalizationException(
+				"Enable localization must be true for modifiable object " +
+					"definitions");
+		}
+	}
+
 	private void _validateEnableObjectEntryHistory(
 			boolean enableObjectEntryHistoryChanged, boolean modifiable,
 			String storageType, boolean system)
@@ -2765,6 +2795,9 @@ public class ObjectDefinitionLocalServiceImpl
 
 	@Reference
 	private FragmentEntryLinkCache _fragmentEntryLinkCache;
+
+	@Reference
+	private FriendlyURLEntryLocalService _friendlyURLEntryLocalService;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

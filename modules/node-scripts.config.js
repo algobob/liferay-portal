@@ -85,6 +85,7 @@ module.exports = {
 		'@liferay/map-common': [],
 		'@liferay/map-google-maps': [],
 		'@liferay/map-openstreetmap': [],
+		'@liferay/marketplace-js-components-web': [],
 		'@liferay/object-js-components-web': [],
 		'@liferay/portal-workflow-instance-tracker-web': [],
 		'@liferay/template-web': [],
@@ -196,6 +197,7 @@ module.exports = {
 		'axe-core': ['*', 'default'],
 		'ckeditor5': [
 			'Alignment',
+			'BlockQuote',
 			'Bold',
 			'ClassicEditor',
 			'EditorConfig',
@@ -211,6 +213,7 @@ module.exports = {
 			'MediaEmbed',
 			'Paragraph',
 			'RemoveFormat',
+			'SourceEditing',
 			'Strikethrough',
 			'Table',
 			'TableCaption',

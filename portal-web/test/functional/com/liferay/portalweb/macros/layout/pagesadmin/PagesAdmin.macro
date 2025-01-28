@@ -239,8 +239,6 @@ definition {
 			key_pageName = ${parentPageName},
 			locator1 = "PagesAdmin#LIST_GROUP_ITEM_PLUS_ICON");
 
-		DropdownMenuItem.click(menuItem = "Add Page");
-
 		PagesAdmin._addPage(
 			assertCheckboxMissing = ${assertCheckboxMissing},
 			navigationMenus = ${navigationMenus},
@@ -264,8 +262,6 @@ definition {
 		Click(
 			key_pageName = ${parentPageName},
 			locator1 = "PagesAdmin#LIST_GROUP_ITEM_PLUS_ICON");
-
-		DropdownMenuItem.click(menuItem = "Add Page");
 
 		LexiconCard.clickCard(card = "Widget Page");
 
@@ -402,34 +398,6 @@ definition {
 			target = ${target},
 			targetType = ${targetType},
 			vocabularyName = ${vocabularyName});
-	}
-
-	@summary = "Default summary"
-	macro addPageUnderSitePagesVariation(sitePageType = null, pageTemplateName = null, pageName = null, collectionName = null) {
-		LexiconEntry.gotoAddMenuItem(menuItem = "Page");
-
-		WaitForPageLoad();
-
-		PagesAdmin._selectPageType(
-			collectionName = ${collectionName},
-			pageTemplateName = ${pageTemplateName},
-			sitePageType = ${sitePageType});
-
-		SelectFrame(locator1 = "IFrame#MODAL_BODY");
-
-		PortletEntry.inputName(name = ${pageName});
-
-		Button.click(button = "Add");
-
-		SelectFrame.selectFrameTop();
-
-		VerifyElementPresent(locator1 = "Message#SUCCESS");
-
-		AssertVisible(locator1 = "TextInput#NAME");
-
-		Button.click(button = "Save");
-
-		WaitForSPARefresh();
 	}
 
 	@summary = "Default summary"

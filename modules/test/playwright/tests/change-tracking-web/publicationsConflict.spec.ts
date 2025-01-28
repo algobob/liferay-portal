@@ -7,8 +7,9 @@ import {expect, mergeTests} from '@playwright/test';
 
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
 import {changeTrackingPagesTest} from '../../fixtures/changeTrackingPagesTest';
-import {productMenuPageTest} from '../../fixtures/productMenuPageTest';
+import {clickAndExpectToBeVisible} from '../../utils/clickAndExpectToBeVisible';
 import getRandomString from '../../utils/getRandomString';
+import {PORTLET_URLS} from '../../utils/portletUrls';
 import {waitForAlert} from '../../utils/waitForAlert';
 import {blogsPagesTest} from '../blogs-web/fixtures/blogsPagesTest';
 import {journalPagesTest} from '../journal-web/fixtures/journalPagesTest';
@@ -17,20 +18,16 @@ export const test = mergeTests(
 	apiHelpersTest,
 	blogsPagesTest,
 	changeTrackingPagesTest,
-	journalPagesTest,
-	productMenuPageTest
+	journalPagesTest
 );
 
 test('Resolve deletion modification conflict publications by discarding', async ({
 	apiHelpers,
-	blogsEditBlogEntryPage,
-	blogsPage,
 	changeTrackingPage,
 	ctCollection,
 	journalEditArticlePage,
 	journalPage,
 	page,
-	productMenuPage,
 }) => {
 	await changeTrackingPage.workOnProduction();
 
@@ -67,17 +64,23 @@ test('Resolve deletion modification conflict publications by discarding', async 
 
 	await journalEditArticlePage.editArticle(title);
 
-	await journalEditArticlePage.publishArticle(true);
-
-	await blogsEditBlogEntryPage.goto();
-
-	const content = getRandomString();
-
-	await blogsEditBlogEntryPage.editBlogEntry({
-		content,
-		publish: true,
-		title,
+	await clickAndExpectToBeVisible({
+		autoClick: true,
+		target: page.getByRole('menuitem', {
+			exact: true,
+			name: 'Publish',
+		}),
+		trigger: page.getByRole('button', {
+			name: 'Select and Confirm Publish Settings',
+		}),
 	});
+
+	await waitForAlert(page, `Success:${title} was updated successfully.`);
+
+	const site =
+		await apiHelpers.headlessAdminUser.getSiteByFriendlyUrlPath('guest');
+
+	const blog = await apiHelpers.headlessDelivery.postBlog(site.id);
 
 	await changeTrackingPage.goToReviewChanges(ctCollection.body.name);
 
@@ -132,36 +135,7 @@ test('Resolve deletion modification conflict publications by discarding', async 
 		ctCollection2.body.id
 	);
 
-	await blogsPage.goto();
-
-	await blogsPage.deleteAllBlogEntries();
-
-	await page.waitForTimeout(300);
-
-	await productMenuPage.openProductMenuIfClosed();
-
-	await page.getByRole('menuitem', {name: 'Recycle Bin'}).click();
-
-	await page.getByLabel('Recycle Bin').getByTestId('app').click();
-
-	await expect(
-		page
-			.getByTestId('header')
-			.locator('div')
-			.filter({hasText: 'Recycle Bin'})
-			.nth(1)
-	).toBeVisible();
-
-	await page.getByLabel('Select All Items on the Page').check();
-
-	await page.getByRole('button', {name: 'Delete'}).click();
-
-	await page
-		.getByLabel('Delete- Loading')
-		.getByRole('button', {name: 'Delete'})
-		.click();
-
-	await waitForAlert(page, 'Success:Your request completed successfully.');
+	await apiHelpers.headlessDelivery.deleteBlog(blog.id);
 });
 
 test('Resolve deletion modification conflict publications by restoring from recycle bin', async ({
@@ -170,7 +144,6 @@ test('Resolve deletion modification conflict publications by restoring from recy
 	journalEditArticlePage,
 	journalPage,
 	page,
-	productMenuPage,
 }) => {
 	await changeTrackingPage.workOnProduction();
 
@@ -190,7 +163,18 @@ test('Resolve deletion modification conflict publications by restoring from recy
 
 	await journalEditArticlePage.editArticle(title);
 
-	await journalEditArticlePage.publishArticle(true);
+	await clickAndExpectToBeVisible({
+		autoClick: true,
+		target: page.getByRole('menuitem', {
+			exact: true,
+			name: 'Publish',
+		}),
+		trigger: page.getByRole('button', {
+			name: 'Select and Confirm Publish Settings',
+		}),
+	});
+
+	await waitForAlert(page, `Success:${title} was updated successfully.`);
 
 	await changeTrackingPage.workOnProduction();
 
@@ -220,19 +204,13 @@ test('Resolve deletion modification conflict publications by restoring from recy
 
 	await changeTrackingPage.workOnProduction();
 
-	await productMenuPage.openProductMenuIfClosed();
-
 	await journalPage.goto();
 
 	await page.getByLabel(`Actions for ${title}`).click();
 
 	await page.getByRole('menuitem', {name: 'Delete'}).click();
 
-	await page.reload();
-
-	await page.getByRole('menuitem', {name: 'Recycle Bin'}).click();
-
-	await page.getByLabel('Recycle Bin').getByTestId('app').click();
+	await page.goto(`/group/guest${PORTLET_URLS.recycleBin}`);
 
 	await expect(
 		page

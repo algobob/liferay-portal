@@ -383,6 +383,97 @@ public class UserGroup implements Serializable {
 	@JsonIgnore
 	private Supplier<String> _nameSupplier;
 
+	@Schema
+	@Valid
+	public com.liferay.portal.vulcan.permission.Permission[] getPermissions() {
+		if (_permissionsSupplier != null) {
+			permissions = _permissionsSupplier.get();
+
+			_permissionsSupplier = null;
+		}
+
+		return permissions;
+	}
+
+	public void setPermissions(
+		com.liferay.portal.vulcan.permission.Permission[] permissions) {
+
+		this.permissions = permissions;
+
+		_permissionsSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setPermissions(
+		UnsafeSupplier
+			<com.liferay.portal.vulcan.permission.Permission[], Exception>
+				permissionsUnsafeSupplier) {
+
+		_permissionsSupplier = () -> {
+			try {
+				return permissionsUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected com.liferay.portal.vulcan.permission.Permission[] permissions;
+
+	@JsonIgnore
+	private Supplier<com.liferay.portal.vulcan.permission.Permission[]>
+		_permissionsSupplier;
+
+	@Schema(description = "The list of roles associated with this user group.")
+	@Valid
+	public RoleBrief[] getRoleBriefs() {
+		if (_roleBriefsSupplier != null) {
+			roleBriefs = _roleBriefsSupplier.get();
+
+			_roleBriefsSupplier = null;
+		}
+
+		return roleBriefs;
+	}
+
+	public void setRoleBriefs(RoleBrief[] roleBriefs) {
+		this.roleBriefs = roleBriefs;
+
+		_roleBriefsSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setRoleBriefs(
+		UnsafeSupplier<RoleBrief[], Exception> roleBriefsUnsafeSupplier) {
+
+		_roleBriefsSupplier = () -> {
+			try {
+				return roleBriefsUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "The list of roles associated with this user group."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected RoleBrief[] roleBriefs;
+
+	@JsonIgnore
+	private Supplier<RoleBrief[]> _roleBriefsSupplier;
+
 	@Schema(description = "The list of users associated with this user group.")
 	@Valid
 	public UserAccountBrief[] getUserAccountBriefs() {
@@ -613,6 +704,51 @@ public class UserGroup implements Serializable {
 			sb.append(_escape(name));
 
 			sb.append("\"");
+		}
+
+		com.liferay.portal.vulcan.permission.Permission[] permissions =
+			getPermissions();
+
+		if (permissions != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"permissions\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < permissions.length; i++) {
+				sb.append(permissions[i]);
+
+				if ((i + 1) < permissions.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
+		RoleBrief[] roleBriefs = getRoleBriefs();
+
+		if (roleBriefs != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"roleBriefs\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < roleBriefs.length; i++) {
+				sb.append(String.valueOf(roleBriefs[i]));
+
+				if ((i + 1) < roleBriefs.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
 		}
 
 		UserAccountBrief[] userAccountBriefs = getUserAccountBriefs();

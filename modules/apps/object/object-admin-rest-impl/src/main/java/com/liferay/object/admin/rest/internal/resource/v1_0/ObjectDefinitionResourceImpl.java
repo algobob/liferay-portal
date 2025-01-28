@@ -29,6 +29,7 @@ import com.liferay.object.admin.rest.resource.v1_0.ObjectValidationRuleResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectViewResource;
 import com.liferay.object.constants.ObjectActionKeys;
 import com.liferay.object.constants.ObjectConstants;
+import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.definition.util.ObjectDefinitionUtil;
@@ -254,7 +255,9 @@ public class ObjectDefinitionResourceImpl
 					GetterUtil.getBoolean(
 						objectDefinition.getEnableIndexSearch()),
 					GetterUtil.getBoolean(
-						objectDefinition.getEnableLocalization()),
+						objectDefinition.getEnableLocalization(),
+						FeatureFlagManagerUtil.isEnabled(
+							contextUser.getCompanyId(), "LPD-32050")),
 					_getLocalizedMap(
 						objectDefinition.getDefaultLanguageId(),
 						objectDefinition.getLabel()),
@@ -271,7 +274,9 @@ public class ObjectDefinitionResourceImpl
 						objectField -> ObjectFieldUtil.toObjectField(
 							objectDefinition.getDefaultLanguageId(),
 							GetterUtil.getBoolean(
-								objectDefinition.getEnableLocalization()),
+								objectDefinition.getEnableLocalization(),
+								FeatureFlagManagerUtil.isEnabled(
+									contextUser.getCompanyId(), "LPD-32050")),
 							_listTypeDefinitionLocalService, objectField,
 							_objectFieldLocalService,
 							_objectFieldSettingLocalService,
@@ -290,7 +295,9 @@ public class ObjectDefinitionResourceImpl
 					GetterUtil.getBoolean(
 						objectDefinition.getEnableIndexSearch(), true),
 					GetterUtil.getBoolean(
-						objectDefinition.getEnableLocalization()),
+						objectDefinition.getEnableLocalization(),
+						FeatureFlagManagerUtil.isEnabled(
+							contextUser.getCompanyId(), "LPD-32050")),
 					GetterUtil.getBoolean(
 						objectDefinition.getEnableObjectEntryDraft()),
 					_getLocalizedMap(
@@ -320,7 +327,9 @@ public class ObjectDefinitionResourceImpl
 						objectField -> ObjectFieldUtil.toObjectField(
 							objectDefinition.getDefaultLanguageId(),
 							GetterUtil.getBoolean(
-								objectDefinition.getEnableLocalization()),
+								objectDefinition.getEnableLocalization(),
+								FeatureFlagManagerUtil.isEnabled(
+									contextUser.getCompanyId(), "LPD-32050")),
 							_listTypeDefinitionLocalService, objectField,
 							_objectFieldLocalService,
 							_objectFieldSettingLocalService,
@@ -534,7 +543,10 @@ public class ObjectDefinitionResourceImpl
 					GetterUtil.getBoolean(
 						objectDefinition.getEnableIndexSearch()),
 					GetterUtil.getBoolean(
-						objectDefinition.getEnableLocalization()),
+						objectDefinition.getEnableLocalization(),
+						FeatureFlagManagerUtil.isEnabled(
+							serviceBuilderObjectDefinition.getCompanyId(),
+							"LPD-32050")),
 					GetterUtil.getBoolean(
 						objectDefinition.getEnableObjectEntryDraft()),
 					GetterUtil.getBoolean(
@@ -1047,7 +1059,7 @@ public class ObjectDefinitionResourceImpl
 					objectDefinitionExternalReferenceCode1,
 					contextUser.getUserId(),
 					serviceBuilderObjectDefinition2.getObjectFolderId(), true,
-					false);
+					ObjectDefinitionConstants.SCOPE_COMPANY, false);
 		}
 
 		com.liferay.object.model.ObjectRelationship objectRelationship =

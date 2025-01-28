@@ -7,6 +7,7 @@ import {getRandomInt} from '../utils/getRandomInt';
 import {ApiHelpers, DataApiHelpers} from './ApiHelpers';
 
 type TAccount = {
+	description?: string;
 	externalReferenceCode?: string;
 	id?: number;
 	name?: string;
@@ -118,7 +119,7 @@ export class HeadlessAdminUserApiHelper {
 	}
 
 	async assignUserToOrganizationRole(
-		roleId: string,
+		roleId: number | string,
 		userAccountId: string,
 		organizationId: string
 	) {
@@ -396,18 +397,25 @@ export class HeadlessAdminUserApiHelper {
 	}
 
 	async postRole(role: TRole) {
-		role = {
-			roleType: 'regular',
-			...role,
-		};
-
-		return this.apiHelpers.post(
+		role = await this.apiHelpers.post(
 			`${this.apiHelpers.baseUrl}${this.basePath}/roles`,
 			{
-				data: role,
+				data: {
+					roleType: 'regular',
+					...role,
+				},
 				failOnStatusCode: true,
 			}
 		);
+
+		if (this.apiHelpers instanceof DataApiHelpers) {
+			this.apiHelpers.data.push({
+				id: role.id,
+				type: 'role',
+			});
+		}
+
+		return role;
 	}
 
 	async postUserAccount(

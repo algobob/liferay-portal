@@ -9,6 +9,7 @@ export class ObjectRelationshipFormPage {
 	readonly inheritanceCheckbox: Locator;
 	readonly inheritanceInfo: Locator;
 	readonly labelInput: Locator;
+	readonly manyRecordsOfInput: Locator;
 	readonly manyRecordsOfSelect: Locator;
 	readonly nameInput: Locator;
 	readonly oneRecordOfInput: Locator;
@@ -27,6 +28,9 @@ export class ObjectRelationshipFormPage {
 		this.labelInput = page
 			.locator(formContainerSelector)
 			.getByLabel('LabelMandatory');
+		this.manyRecordsOfInput = page
+			.locator('.form-group')
+			.getByLabel('Many Records OfMandatory');
 		this.manyRecordsOfSelect = page
 			.locator(formContainerSelector)
 			.getByLabel('Many Records OfMandatory');
@@ -45,9 +49,7 @@ export class ObjectRelationshipFormPage {
 			.getByRole('button', {name: 'Save'});
 		this.typeSelect = page
 			.locator(formContainerSelector)
-			.getByLabel('Type')
-			.or(page.getByText('Many to Many'))
-			.or(page.getByText('One to Many'));
+			.getByLabel('Type');
 	}
 
 	async selectManyRecordsOf(option: string) {

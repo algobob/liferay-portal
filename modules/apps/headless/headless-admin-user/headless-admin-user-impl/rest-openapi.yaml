@@ -213,6 +213,18 @@ components:
                     items:
                         $ref: "#/components/schemas/CustomField"
                     type: array
+                dateCreated:
+                    description:
+                        The account group's creation date.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                dateModified:
+                    description:
+                        The account group's most recent modification date.
+                    format: date-time
+                    readOnly: true
+                    type: string
                 description:
                     example: AccountGroup Description
                     type: string
@@ -1384,6 +1396,17 @@ components:
                     type: integer
                 name:
                     type: string
+                permissions:
+                    items:
+                        type: permission
+                    type: array
+                roleBriefs:
+                    description:
+                        The list of roles associated with this user group.
+                    items:
+                        $ref: "#/components/schemas/RoleBrief"
+                    readOnly: true
+                    type: array
                 userAccountBriefs:
                     description:
                         The list of users associated with this user group.

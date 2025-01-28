@@ -216,7 +216,7 @@ import org.springframework.transaction.support.DefaultTransactionStatus;
 /**
  * @author Luis Miguel Barcos
  */
-@FeatureFlags({"LPD-32050", "LPS-164801"})
+@FeatureFlags("LPS-164801")
 @RunWith(Arquillian.class)
 public class ObjectEntryResourceTest {
 
@@ -6055,7 +6055,7 @@ public class ObjectEntryResourceTest {
 
 			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_BOOLEAN));
 			Assert.assertFalse(jsonObject.has(_OBJECT_FIELD_NAME_DATE));
-			Assert.assertFalse(jsonObject.has(_OBJECT_FIELD_NAME_TEXT));
+			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_TEXT));
 			Assert.assertFalse(jsonObject.has(_objectRelationship1.getName()));
 
 			_assertInvocations(invocations, true, _OBJECT_FIELD_NAME_BOOLEAN);
@@ -6076,7 +6076,7 @@ public class ObjectEntryResourceTest {
 
 			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_BOOLEAN));
 			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_DATE));
-			Assert.assertFalse(jsonObject.has(_OBJECT_FIELD_NAME_TEXT));
+			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_TEXT));
 			Assert.assertFalse(jsonObject.has(_objectRelationship1.getName()));
 
 			_assertInvocations(invocations, true, _OBJECT_FIELD_NAME_BOOLEAN);
@@ -6099,7 +6099,7 @@ public class ObjectEntryResourceTest {
 
 			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_BOOLEAN));
 			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_DATE));
-			Assert.assertFalse(jsonObject.has(_OBJECT_FIELD_NAME_TEXT));
+			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_TEXT));
 			Assert.assertTrue(jsonObject.has(_objectRelationship1.getName()));
 			Assert.assertFalse(
 				Validator.isNull(
@@ -6130,7 +6130,7 @@ public class ObjectEntryResourceTest {
 
 			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_BOOLEAN));
 			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_DATE));
-			Assert.assertFalse(jsonObject.has(_OBJECT_FIELD_NAME_TEXT));
+			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_TEXT));
 			Assert.assertTrue(jsonObject.has(_objectRelationship1.getName()));
 			Assert.assertTrue(
 				Validator.isNull(
@@ -9118,6 +9118,7 @@ public class ObjectEntryResourceTest {
 			false);
 	}
 
+	@FeatureFlags("LPD-32050")
 	@Test
 	public void testPutCustomObjectEntryWithLocalizedAttachmentObjectField()
 		throws Exception {
@@ -13113,7 +13114,8 @@ public class ObjectEntryResourceTest {
 						com.liferay.object.rest.dto.v1_0.ObjectEntry.class.
 							getName(),
 						StringPool.POUND,
-						StringUtil.toLowerCase(objectDefinition.getName())));
+						StringUtil.toLowerCase(
+							objectDefinition.getShortName())));
 
 			objectEntryResource.setContextAcceptLanguage(
 				new AcceptLanguage() {

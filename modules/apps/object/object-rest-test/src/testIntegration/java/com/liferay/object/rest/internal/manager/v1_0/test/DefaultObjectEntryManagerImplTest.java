@@ -671,8 +671,7 @@ public class DefaultObjectEntryManagerImplTest
 
 		_objectDefinition3 =
 			objectDefinitionLocalService.addCustomObjectDefinition(
-				adminUser.getUserId(), 0, null, false, false, true, false,
-				false,
+				adminUser.getUserId(), 0, null, false, false, true, true, false,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectDefinitionTestUtil.getRandomName(), null, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
@@ -1930,7 +1929,8 @@ public class DefaultObjectEntryManagerImplTest
 						objectEntryId2)));
 
 			_updateAndAssertObjectEntryWithPicklistObjectField(
-				null, null, objectDefinition, objectEntryId1);
+				StringPool.BLANK, StringPool.BLANK, objectDefinition,
+				objectEntryId1);
 			_updateAndAssertObjectEntryWithPicklistObjectField(
 				StringPool.BLANK, StringPool.BLANK, objectDefinition,
 				objectEntryId2);

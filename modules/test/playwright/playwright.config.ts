@@ -27,6 +27,7 @@ import {config as commerceAccountWebConfig} from './tests/commerce/commerce-acco
 import {config as commerceCartContentWebConfig} from './tests/commerce/commerce-cart-content-web/config';
 import {config as commerceChannelWebConfig} from './tests/commerce/commerce-channel-web/config';
 import {config as commerceCheckoutWebConfig} from './tests/commerce/commerce-checkout-web/config';
+import {config as commerceCurrencyWebConfig} from './tests/commerce/commerce-currency-web/config';
 import {config as commerceDiscountContentWebConfig} from './tests/commerce/commerce-discount-content-web/config';
 import {config as commerceOrderContentWebConfig} from './tests/commerce/commerce-order-content-web/config';
 import {config as commerceOrderWebConfig} from './tests/commerce/commerce-order-web/config';
@@ -37,6 +38,7 @@ import {config as commerceProductDefinitionsWebConfig} from './tests/commerce/co
 import {config as commerceProductOptionsWebConfig} from './tests/commerce/commerce-product-options-web/config';
 import {config as commerceShippingEngineWebConfig} from './tests/commerce/commerce-shipping-engine-fixed-web/config';
 import {config as commerceSiteInitializerWebConfig} from './tests/commerce/commerce-site-initializer/config';
+import {config as commerceTaxEngineWebConfig} from './tests/commerce/commerce-tax-engine-web/config';
 import {config as commerceThemeMiniumWebConfig} from './tests/commerce/commerce-theme-minium/config';
 import {config as commerceWishListWebConfig} from './tests/commerce/commerce-wish-list-web/config';
 import {config as configurationAdminWebConfig} from './tests/configuration-admin-web/config';
@@ -147,6 +149,7 @@ export default defineConfig({
 		commerceCartContentWebConfig,
 		commerceChannelWebConfig,
 		commerceCheckoutWebConfig,
+		commerceCurrencyWebConfig,
 		commerceDiscountContentWebConfig,
 		commerceOrderWebConfig,
 		commerceOrderContentWebConfig,
@@ -157,6 +160,7 @@ export default defineConfig({
 		commerceProductOptionsWebConfig,
 		commerceShippingEngineWebConfig,
 		commerceSiteInitializerWebConfig,
+		commerceTaxEngineWebConfig,
 		commerceThemeMiniumWebConfig,
 		commerceWishListWebConfig,
 		commerceWorkspaceConfig,

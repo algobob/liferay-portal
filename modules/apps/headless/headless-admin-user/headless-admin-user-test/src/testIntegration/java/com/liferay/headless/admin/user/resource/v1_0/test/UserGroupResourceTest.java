@@ -11,11 +11,19 @@ import com.liferay.headless.admin.user.client.dto.v1_0.UserGroup;
 import com.liferay.headless.admin.user.client.pagination.Page;
 import com.liferay.headless.admin.user.client.pagination.Pagination;
 import com.liferay.headless.admin.user.client.resource.v1_0.UserGroupResource;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserGroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.RoleTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -30,6 +38,7 @@ import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -331,7 +340,7 @@ public class UserGroupResourceTest extends BaseUserGroupResourceTestCase {
 			null, "dateCreated ge " + dateFormat.format(date.getTime()),
 			Pagination.of(1, 2), null);
 
-		Assert.assertEquals(totalCount + 2, page.getTotalCount());
+		Assert.assertEquals(2, page.getTotalCount());
 
 		userGroup1.setDescription(
 			StringUtil.toLowerCase(RandomTestUtil.randomString()));
@@ -345,7 +354,7 @@ public class UserGroupResourceTest extends BaseUserGroupResourceTestCase {
 			null, "dateModified ge " + dateFormat.format(date.getTime()),
 			Pagination.of(1, 2), null);
 
-		Assert.assertEquals(totalCount + 1, page.getTotalCount());
+		Assert.assertEquals(1, page.getTotalCount());
 
 		assertContains(userGroup1, (List<UserGroup>)page.getItems());
 
@@ -359,15 +368,31 @@ public class UserGroupResourceTest extends BaseUserGroupResourceTestCase {
 	}
 
 	private void _testGetUserGroupWithNestedFields() throws Exception {
-		UserGroup postUserGroup = testGetUserGroup_addUserGroup();
+		com.liferay.portal.kernel.model.UserGroup userGroup =
+			_userGroupLocalService.addUserGroup(
+				TestPropsValues.getUserId(), TestPropsValues.getCompanyId(),
+				RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+				ServiceContextTestUtil.getServiceContext());
 
 		User user1 = UserTestUtil.addUser();
 		User user2 = UserTestUtil.addUser();
 		User user3 = UserTestUtil.addUser();
 
 		userGroupResource.postUserGroupUsers(
-			postUserGroup.getId(),
+			userGroup.getUserGroupId(),
 			new Long[] {user1.getUserId(), user2.getUserId()});
+
+		Role role = RoleTestUtil.addRole(RoleConstants.TYPE_REGULAR);
+
+		_roleLocalService.addGroupRole(
+			userGroup.getGroupId(), role.getRoleId());
+
+		_resourcePermissionLocalService.setResourcePermissions(
+			TestPropsValues.getCompanyId(),
+			com.liferay.portal.kernel.model.UserGroup.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(userGroup.getUserGroupId()), role.getRoleId(),
+			new String[] {ActionKeys.DELETE});
 
 		UserGroupResource userGroupResource = UserGroupResource.builder(
 		).authentication(
@@ -375,11 +400,11 @@ public class UserGroupResourceTest extends BaseUserGroupResourceTestCase {
 		).locale(
 			LocaleUtil.getDefault()
 		).parameters(
-			"nestedFields", "creator,userAccountBriefs"
+			"nestedFields", "creator,permissions,roleBriefs,userAccountBriefs"
 		).build();
 
 		UserGroup getUserGroup = userGroupResource.getUserGroup(
-			postUserGroup.getId());
+			userGroup.getUserGroupId());
 
 		Assert.assertNotNull(getUserGroup.getCreator());
 
@@ -387,7 +412,17 @@ public class UserGroupResourceTest extends BaseUserGroupResourceTestCase {
 
 		Assert.assertTrue(creator.getId() == TestPropsValues.getUserId());
 
-		Assert.assertNotNull(getUserGroup.getUserAccountBriefs());
+		Assert.assertTrue(
+			ArrayUtil.exists(
+				getUserGroup.getPermissions(),
+				permission ->
+					Objects.equals(permission.getRoleName(), role.getName()) &&
+					(permission.getActionIds().length == 1) &&
+					Objects.equals(permission.getActionIds()[0], "DELETE")));
+		Assert.assertTrue(
+			ArrayUtil.exists(
+				getUserGroup.getRoleBriefs(),
+				groupRole -> groupRole.getId() == role.getRoleId()));
 		Assert.assertTrue(
 			ArrayUtil.exists(
 				getUserGroup.getUserAccountBriefs(),
@@ -404,6 +439,12 @@ public class UserGroupResourceTest extends BaseUserGroupResourceTestCase {
 				userAccountBrief ->
 					userAccountBrief.getId() == user3.getUserId()));
 	}
+
+	@Inject
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
+
+	@Inject
+	private RoleLocalService _roleLocalService;
 
 	@Inject
 	private UserGroupLocalService _userGroupLocalService;

@@ -6,13 +6,19 @@
 import {test} from '@playwright/test';
 
 import {AccountAccountGroupsPage} from '../pages/account-admin-web/AccountAccountGroupsPage';
+import {AccountAddressesPage} from '../pages/account-admin-web/AccountAddressesPage';
 import {AccountContactAddressPage} from '../pages/account-admin-web/AccountContactAddressPage';
+import {AccountDefaultAddressSelectorPage} from '../pages/account-admin-web/AccountDefaultAddressSelectorPage';
 import {AccountEntriesManagementPortletPage} from '../pages/account-admin-web/AccountEntriesManagementPortletPage';
 import {AccountManagementWidgetPage} from '../pages/account-admin-web/AccountManagementWidgetPage';
+import {AccountOrganizationSelectorPage} from '../pages/account-admin-web/AccountOrganizationSelectorPage';
 import {AccountOrganizationsPage} from '../pages/account-admin-web/AccountOrganizationsPage';
+import {AccountPersonUserSelectorPage} from '../pages/account-admin-web/AccountPersonUserSelectorPage';
 import {AccountRolesPage} from '../pages/account-admin-web/AccountRolesPage';
+import {AccountUserSelectorPage} from '../pages/account-admin-web/AccountUserSelectorPage';
 import {AccountUsersPage} from '../pages/account-admin-web/AccountUsersPage';
 import {AccountsPage} from '../pages/account-admin-web/AccountsPage';
+import {EditAccountAddressPage} from '../pages/account-admin-web/EditAccountAddressPage';
 import {EditAccountChannelDefaultsPage} from '../pages/account-admin-web/EditAccountChannelDefaultsPage';
 import {EditAccountContactAddressPage} from '../pages/account-admin-web/EditAccountContactAddressPage';
 import {EditAccountContactInformationPage} from '../pages/account-admin-web/EditAccountContactInformationPage';
@@ -21,16 +27,23 @@ import {EditAccountEmailAddressPage} from '../pages/account-admin-web/EditAccoun
 import {EditAccountPage} from '../pages/account-admin-web/EditAccountPage';
 import {EditAccountPhonePage} from '../pages/account-admin-web/EditAccountPhonePage';
 import {EditAccountWebsitePage} from '../pages/account-admin-web/EditAccountWebsitePage';
+import {EmailDomainsInstanceSettingsPage} from '../pages/account-admin-web/EmailDomainsInstanceSettingsPage';
 
 const accountsPagesTest = test.extend<{
 	accountAccountGroupsPage: AccountAccountGroupsPage;
+	accountAddressesPage: AccountAddressesPage;
 	accountContactAddressPage: AccountContactAddressPage;
+	accountDefaultAddressSelectorPage: AccountDefaultAddressSelectorPage;
 	accountEntriesManagementPortletPage: AccountEntriesManagementPortletPage;
 	accountManagementWidgetPage: AccountManagementWidgetPage;
+	accountOrganizationSelectorPage: AccountOrganizationSelectorPage;
 	accountOrganizationsPage: AccountOrganizationsPage;
+	accountPersonUserSelectorPage: AccountPersonUserSelectorPage;
 	accountRolesPage: AccountRolesPage;
+	accountUserSelectorPage: AccountUserSelectorPage;
 	accountUsersPage: AccountUsersPage;
 	accountsPage: AccountsPage;
+	editAccountAddressPage: EditAccountAddressPage;
 	editAccountChannelDefaultsPage: EditAccountChannelDefaultsPage;
 	editAccountContactAddressPage: EditAccountContactAddressPage;
 	editAccountContactInformationPage: EditAccountContactInformationPage;
@@ -39,12 +52,19 @@ const accountsPagesTest = test.extend<{
 	editAccountPage: EditAccountPage;
 	editAccountPhonePage: EditAccountPhonePage;
 	editAccountWebsitePage: EditAccountWebsitePage;
+	emailDomainsInstanceSettingsPage: EmailDomainsInstanceSettingsPage;
 }>({
 	accountAccountGroupsPage: async ({page}, use) => {
 		await use(new AccountAccountGroupsPage(page));
 	},
+	accountAddressesPage: async ({page}, use) => {
+		await use(new AccountAddressesPage(page));
+	},
 	accountContactAddressPage: async ({page}, use) => {
 		await use(new AccountContactAddressPage(page));
+	},
+	accountDefaultAddressSelectorPage: async ({page}, use) => {
+		await use(new AccountDefaultAddressSelectorPage(page));
 	},
 	accountEntriesManagementPortletPage: async ({page}, use) => {
 		await use(new AccountEntriesManagementPortletPage(page));
@@ -52,17 +72,29 @@ const accountsPagesTest = test.extend<{
 	accountManagementWidgetPage: async ({page}, use) => {
 		await use(new AccountManagementWidgetPage(page));
 	},
+	accountOrganizationSelectorPage: async ({page}, use) => {
+		await use(new AccountOrganizationSelectorPage(page));
+	},
 	accountOrganizationsPage: async ({page}, use) => {
 		await use(new AccountOrganizationsPage(page));
 	},
+	accountPersonUserSelectorPage: async ({page}, use) => {
+		await use(new AccountPersonUserSelectorPage(page));
+	},
 	accountRolesPage: async ({page}, use) => {
 		await use(new AccountRolesPage(page));
+	},
+	accountUserSelectorPage: async ({page}, use) => {
+		await use(new AccountUserSelectorPage(page));
 	},
 	accountUsersPage: async ({page}, use) => {
 		await use(new AccountUsersPage(page));
 	},
 	accountsPage: async ({page}, use) => {
 		await use(new AccountsPage(page));
+	},
+	editAccountAddressPage: async ({page}, use) => {
+		await use(new EditAccountAddressPage(page));
 	},
 	editAccountChannelDefaultsPage: async ({page}, use) => {
 		await use(new EditAccountChannelDefaultsPage(page));
@@ -87,6 +119,9 @@ const accountsPagesTest = test.extend<{
 	},
 	editAccountWebsitePage: async ({page}, use) => {
 		await use(new EditAccountWebsitePage(page));
+	},
+	emailDomainsInstanceSettingsPage: async ({page}, use) => {
+		await use(new EmailDomainsInstanceSettingsPage(page));
 	},
 });
 

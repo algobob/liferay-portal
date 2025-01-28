@@ -168,6 +168,7 @@ import com.liferay.journal.constants.JournalArticleConstants;
 import com.liferay.journal.constants.JournalContentPortletKeys;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.model.JournalArticle;
+import com.liferay.journal.model.JournalArticleDisplay;
 import com.liferay.journal.model.JournalArticleLocalizationModel;
 import com.liferay.journal.model.JournalArticleModel;
 import com.liferay.journal.model.JournalArticleResourceModel;
@@ -400,6 +401,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -441,6 +443,10 @@ public class DataFactory {
 
 		List<String> models = ModelHintsUtil.getModels();
 
+		models.add(
+			DDMTemplate.class.getName() + StringPool.DASH +
+				JournalArticle.class.getName());
+		models.add(JournalArticleDisplay.class.getName());
 		models.add(Layout.class.getName());
 		models.add(NavItem.class.getName());
 		models.add(PortletDisplayTemplate.class.getName());
@@ -684,6 +690,12 @@ public class DataFactory {
 		ObjectDefinitionModel objectDefinitionModel,
 		List<ObjectFieldModel> objectFieldModels) {
 
+		if (!_objectDefinitionDBTableNames.add(
+				objectDefinitionModel.getDBTableName())) {
+
+			return StringPool.BLANK;
+		}
+
 		List<ObjectField> objectFields = new ArrayList<>();
 
 		for (ObjectFieldModel objectFieldModel : objectFieldModels) {
@@ -707,6 +719,12 @@ public class DataFactory {
 
 		ObjectDefinition objectDefinition =
 			(ObjectDefinition)objectDefinitionModel;
+
+		if (!_objectDefinitionDBTableNames.add(
+				objectDefinition.getExtensionDBTableName())) {
+
+			return StringPool.BLANK;
+		}
 
 		DynamicObjectDefinitionTable dynamicObjectDefinitionTable =
 			new DynamicObjectDefinitionTable(
@@ -800,6 +818,10 @@ public class DataFactory {
 
 	public int getMaxJournalArticleVersionCount() {
 		return BenchmarksPropsValues.MAX_JOURNAL_ARTICLE_VERSION_COUNT;
+	}
+
+	public int getMaxObjectEntryPageCount() {
+		return BenchmarksPropsValues.MAX_OBJECT_ENTRY_PAGE_COUNT;
 	}
 
 	public int getMaxSegmentsEntrySegmentsExperienceCount() {
@@ -1189,7 +1211,7 @@ public class DataFactory {
 
 		String resourceUUID = _journalArticleResourceUUIDs.get(resourcePrimKey);
 
-		return newAssetEntryModel(
+		_journalArticleAssetEntryModel = newAssetEntryModel(
 			journalArticleModel.getGroupId(),
 			journalArticleModel.getCreateDate(),
 			journalArticleModel.getModifiedDate(),
@@ -1197,6 +1219,8 @@ public class DataFactory {
 			_defaultJournalDDMStructureId, journalArticleModel.isIndexable(),
 			true, ContentTypes.TEXT_HTML,
 			journalArticleLocalizationModel.getTitle());
+
+		return _journalArticleAssetEntryModel;
 	}
 
 	public AssetListEntryModel newAssetListEntryModel(long groupId, int index) {
@@ -1244,7 +1268,7 @@ public class DataFactory {
 	public AssetListEntrySegmentsEntryRelModel
 		newAssetListEntrySegmentsEntryRelModel(
 			AssetListEntryModel assetListEntryModel,
-			DDMStructureModel ddmStructureModel, int currentIndex) {
+			DDMStructureModel ddmStructureModel, int index) {
 
 		AssetListEntrySegmentsEntryRelModel
 			assetListEntrySegmentsEntryRelModel =
@@ -1308,7 +1332,7 @@ public class DataFactory {
 			Boolean.FALSE.toString()
 		).build();
 
-		if (currentIndex == 1) {
+		if (index == 1) {
 			map.put("queryAndOperator0", Boolean.TRUE.toString());
 			map.put("queryContains0", Boolean.TRUE.toString());
 			map.put("queryName0", "assetTags");
@@ -1316,7 +1340,7 @@ public class DataFactory {
 		else {
 			String assetPublisherQueryName = "assetCategories";
 
-			if ((currentIndex % 2) == 0) {
+			if ((index % 2) == 0) {
 				assetPublisherQueryName = "assetTags";
 			}
 
@@ -4159,16 +4183,15 @@ public class DataFactory {
 		return dlFileVersionModel;
 	}
 
-	public DLFolderModel newDLFolderModel() {
-		return newDLFolderModel(
-			_counter.get(), _globalGroupId, 0, "", "Objects");
-	}
-
 	public DLFolderModel newDLFolderModel(
 		long groupId, long parentFolderId, String name) {
 
 		return newDLFolderModel(
 			_counter.get(), groupId, parentFolderId, "", name);
+	}
+
+	public DLFolderModel newDLFolderModel(String name) {
+		return newDLFolderModel(_counter.get(), _globalGroupId, 0, "", name);
 	}
 
 	public List<DLFolderModel> newDLFolderModels(
@@ -4674,6 +4697,35 @@ public class DataFactory {
 		return journalArticleModel;
 	}
 
+	public List<PortletPreferenceValueModel>
+		newJournalArticlePortletPreferenceValueModels(
+			PortletPreferencesModel portletPreferencesModel,
+			JournalArticleModel journalArticleModel, GroupModel groupModel) {
+
+		return Arrays.asList(
+			newPortletPreferenceValueModel(
+				portletPreferencesModel, "articleExternalReferenceCode", 0,
+				journalArticleModel.getUuid()),
+			newPortletPreferenceValueModel(
+				portletPreferencesModel, "assetEntryId", 0,
+				String.valueOf(_journalArticleAssetEntryModel.getEntryId())),
+			newPortletPreferenceValueModel(
+				portletPreferencesModel, "contentMetadataAssetAddonEntryKeys",
+				0, "false"),
+			newPortletPreferenceValueModel(
+				portletPreferencesModel, "ddmTemplateExternalReferenceCode", 0,
+				StringPool.BLANK),
+			newPortletPreferenceValueModel(
+				portletPreferencesModel, "enableViewCountIncrement", 0,
+				"false"),
+			newPortletPreferenceValueModel(
+				portletPreferencesModel, "groupExternalReferenceCode", 0,
+				groupModel.getUuid()),
+			newPortletPreferenceValueModel(
+				portletPreferencesModel, "userToolAssetAddonEntryKeys", 0,
+				"false"));
+	}
+
 	public JournalArticleResourceModel newJournalArticleResourceModel(
 		long groupId) {
 
@@ -4706,20 +4758,6 @@ public class DataFactory {
 			journalArticleResourceModel.getUuid());
 
 		return journalArticleResourceModel;
-	}
-
-	public List<PortletPreferenceValueModel>
-		newJournalArticleResourcePortletPreferenceValueModels(
-			PortletPreferencesModel portletPreferencesModel,
-			JournalArticleResourceModel journalArticleResourceModel) {
-
-		return Arrays.asList(
-			newPortletPreferenceValueModel(
-				portletPreferencesModel, "articleId", 0,
-				journalArticleResourceModel.getArticleId()),
-			newPortletPreferenceValueModel(
-				portletPreferencesModel, "groupId", 0,
-				String.valueOf(journalArticleResourceModel.getGroupId())));
 	}
 
 	public PortletPreferencesModel newJournalContentPortletPreferencesModel(
@@ -5474,7 +5512,9 @@ public class DataFactory {
 		return layoutPageTemplateStructureRelModel;
 	}
 
-	public ObjectDefinitionModel newObjectDefinitionModel(long objectFolderId) {
+	public ObjectDefinitionModel newObjectDefinitionModel(
+		long objectFolderId, String name) {
+
 		long objectDefinitionId = _counter.get();
 
 		String className =
@@ -5487,8 +5527,6 @@ public class DataFactory {
 		classNameModel.setValue(className);
 
 		_classNameModels.put(className, classNameModel);
-
-		String name = "Ticket";
 
 		String label = _getObjectLabel(name);
 
@@ -8889,6 +8927,7 @@ public class DataFactory {
 	private long _guestGroupId;
 	private RoleModel _guestRoleModel;
 	private long _guestUserId;
+	private AssetEntryModel _journalArticleAssetEntryModel;
 	private String _journalArticleContent;
 	private final Map<Long, String> _journalArticleResourceUUIDs =
 		new HashMap<>();
@@ -8900,6 +8939,7 @@ public class DataFactory {
 	private final String _layoutPageTemplateStructureRelData;
 	private final SimpleCounter _layoutPlidCounter;
 	private final SimpleCounter _layoutSetIdCounter;
+	private final Set<String> _objectDefinitionDBTableNames = new HashSet<>();
 	private long _objectDefinitionId;
 	private long _objectFieldId;
 	private RoleModel _ownerRoleModel;

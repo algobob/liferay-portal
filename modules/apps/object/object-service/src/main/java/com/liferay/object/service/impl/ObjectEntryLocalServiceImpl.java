@@ -22,6 +22,7 @@ import com.liferay.dynamic.data.mapping.expression.CreateExpressionRequest;
 import com.liferay.dynamic.data.mapping.expression.DDMExpression;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFactory;
 import com.liferay.dynamic.data.mapping.util.NumberUtil;
+import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.list.type.model.ListTypeEntry;
 import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.action.engine.ObjectActionEngine;
@@ -38,6 +39,7 @@ import com.liferay.object.definition.util.ObjectDefinitionThreadLocal;
 import com.liferay.object.entry.ObjectEntryContext;
 import com.liferay.object.entry.contributor.ObjectEntryValuesContributor;
 import com.liferay.object.entry.util.ObjectEntryThreadLocal;
+import com.liferay.object.entry.util.ObjectEntryValuesUtil;
 import com.liferay.object.exception.DuplicateObjectEntryExternalReferenceCodeException;
 import com.liferay.object.exception.NoSuchObjectDefinitionException;
 import com.liferay.object.exception.ObjectDefinitionScopeException;
@@ -166,6 +168,7 @@ import com.liferay.portal.kernel.security.permission.InlineSQLHelper;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
+import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.PermissionService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
@@ -379,6 +382,9 @@ public class ObjectEntryLocalServiceImpl
 				serviceContext.getAssetPriority(), serviceContext);
 		}
 
+		_addFriendlyURLEntry(
+			objectDefinition, objectEntry, serviceContext, values);
+
 		_startWorkflowInstance(userId, objectEntry, serviceContext, false);
 
 		_updateResourcePermissions(
@@ -568,6 +574,12 @@ public class ObjectEntryLocalServiceImpl
 				objectDefinition.getClassName(),
 				objectEntry.getObjectEntryId());
 
+			_friendlyURLEntryLocalService.deleteFriendlyURLEntry(
+				objectEntry.getNonzeroGroupId(),
+				_classNameLocalService.getClassNameId(
+					objectDefinition.getClassName()),
+				objectEntry.getObjectEntryId());
+
 			_deleteFromTable(
 				objectDefinition.getDBTableName(),
 				objectDefinition.getPKObjectFieldDBColumnName(),
@@ -577,7 +589,15 @@ public class ObjectEntryLocalServiceImpl
 				objectDefinition.getPKObjectFieldDBColumnName(),
 				objectEntry.getObjectEntryId());
 
-			if (objectDefinition.isEnableLocalization()) {
+			List<ObjectField> localizedObjectFields =
+				_objectFieldLocalService.getLocalizedObjectFields(
+					objectDefinition.getObjectDefinitionId());
+
+			if ((!FeatureFlagManagerUtil.isEnabled(
+					objectDefinition.getCompanyId(), "LPD-32050") &&
+				 objectDefinition.isEnableLocalization()) ||
+				!localizedObjectFields.isEmpty()) {
+
 				_deleteFromTable(
 					objectDefinition.getLocalizationDBTableName(),
 					objectDefinition.getPKObjectFieldDBColumnName(),
@@ -1608,6 +1628,9 @@ public class ObjectEntryLocalServiceImpl
 			serviceContext.getAssetLinkEntryIds(),
 			serviceContext.getAssetPriority(), serviceContext);
 
+		_addFriendlyURLEntry(
+			objectDefinition, objectEntry, serviceContext, values);
+
 		_startWorkflowInstance(userId, objectEntry, serviceContext, true);
 
 		_updateResourcePermissions(
@@ -1909,6 +1932,56 @@ public class ObjectEntryLocalServiceImpl
 					dlFileEntry.getFileEntryId());
 			}
 		}
+	}
+
+	private void _addFriendlyURLEntry(
+			ObjectDefinition objectDefinition, ObjectEntry objectEntry,
+			ServiceContext serviceContext, Map<String, Serializable> values)
+		throws PortalException {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-21926")) {
+			return;
+		}
+
+		long classNameId = _classNameLocalService.getClassNameId(
+			objectDefinition.getClassName());
+		ObjectField objectField = _objectFieldLocalService.fetchObjectField(
+			objectDefinition.getTitleObjectFieldId());
+		Map<String, String> urlTitleMap = new HashMap<>();
+
+		if ((objectField == null) || !objectField.isLocalized()) {
+			urlTitleMap = HashMapBuilder.put(
+				_language.getLanguageId(LocaleUtil.getSiteDefault()),
+				_getUrlTitle(
+					classNameId, null, objectEntry, objectField,
+					HashMapBuilder.<String, Object>putAll(
+						values
+					).putAll(
+						objectEntry.getModelAttributes()
+					).build())
+			).build();
+		}
+		else {
+			Map<String, Object> localizedValues =
+				(Map<String, Object>)values.get(
+					objectField.getI18nObjectFieldName());
+
+			for (Map.Entry<String, Object> entry : localizedValues.entrySet()) {
+				urlTitleMap.put(
+					entry.getKey(),
+					_getUrlTitle(
+						classNameId, entry.getKey(), objectEntry, objectField,
+						new HashMap<>(values)));
+			}
+
+			urlTitleMap.putIfAbsent(
+				_language.getLanguageId(LocaleUtil.getSiteDefault()),
+				_getUrlTitle(classNameId, null, objectEntry, null, null));
+		}
+
+		_friendlyURLEntryLocalService.addFriendlyURLEntry(
+			objectEntry.getNonzeroGroupId(), classNameId,
+			objectEntry.getObjectEntryId(), urlTitleMap, serviceContext);
 	}
 
 	private JoinStep _addInnerJoinON(
@@ -3651,6 +3724,27 @@ public class ObjectEntryLocalServiceImpl
 		return selectExpressions.toArray(new Expression<?>[0]);
 	}
 
+	private String _getUrlTitle(
+			long classNameId, String languageId, ObjectEntry objectEntry,
+			ObjectField objectField, Map<String, Object> values)
+		throws PortalException {
+
+		String urlTitle = GetterUtil.getString(
+			ObjectEntryValuesUtil.getValue(languageId, objectField, values));
+
+		if (Validator.isNull(urlTitle)) {
+			urlTitle = objectEntry.getExternalReferenceCode();
+
+			if (Validator.isNull(urlTitle)) {
+				urlTitle = objectEntry.getUuid();
+			}
+		}
+
+		return _friendlyURLEntryLocalService.getUniqueUrlTitle(
+			objectEntry.getNonzeroGroupId(), classNameId,
+			objectEntry.getObjectEntryId(), urlTitle, languageId);
+	}
+
 	/**
 	 * @see com.liferay.portal.upgrade.util.Table#getValue
 	 */
@@ -4300,7 +4394,13 @@ public class ObjectEntryLocalServiceImpl
 			values.put(name, number);
 		}
 		else if (javaTypeClass == String.class) {
-			values.put(name, (String)object);
+			String string = (String)object;
+
+			if (string == null) {
+				string = StringPool.BLANK;
+			}
+
+			values.put(name, string);
 		}
 		else if (javaTypeClass == Timestamp.class) {
 			values.put(name, (Timestamp)object);
@@ -5578,6 +5678,9 @@ public class ObjectEntryLocalServiceImpl
 	private AttachmentManager _attachmentManager;
 
 	@Reference
+	private ClassNameLocalService _classNameLocalService;
+
+	@Reference
 	private CurrentConnection _currentConnection;
 
 	@Reference
@@ -5599,6 +5702,9 @@ public class ObjectEntryLocalServiceImpl
 		target = "(filter.factory.key=" + ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT + ")"
 	)
 	private FilterFactory<Predicate> _filterFactory;
+
+	@Reference
+	private FriendlyURLEntryLocalService _friendlyURLEntryLocalService;
 
 	@Reference
 	private GroupLocalService _groupLocalService;
