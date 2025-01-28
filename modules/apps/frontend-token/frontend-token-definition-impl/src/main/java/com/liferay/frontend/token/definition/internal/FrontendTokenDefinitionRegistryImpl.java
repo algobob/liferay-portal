@@ -12,6 +12,8 @@ import com.liferay.client.extension.type.ThemeCSSCET;
 import com.liferay.frontend.token.definition.FrontendTokenDefinition;
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
 import com.liferay.frontend.token.definition.internal.validator.FrontendTokenDefinitionJSONValidator;
+import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
+import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.osgi.util.ServiceTrackerFactory;
 import com.liferay.petra.concurrent.DCLSingleton;
 import com.liferay.petra.string.StringPool;
@@ -20,6 +22,7 @@ import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
@@ -60,6 +63,36 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 @Component(service = FrontendTokenDefinitionRegistry.class)
 public class FrontendTokenDefinitionRegistryImpl
 	implements FrontendTokenDefinitionRegistry {
+
+	@Override
+	public FrontendTokenDefinition getFrontendTokenDefinition(Layout layout) {
+		FrontendTokenDefinition frontendTokenDefinition =
+			_getFrontendTokenDefinition(
+				layout.getCompanyId(), layout.getLayoutId(),
+				layout.getThemeId());
+
+		if (frontendTokenDefinition != null) {
+			return frontendTokenDefinition;
+		}
+
+		LayoutPageTemplateEntry masterLayoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.
+				fetchLayoutPageTemplateEntryByPlid(
+					layout.getMasterLayoutPlid());
+
+		if (masterLayoutPageTemplateEntry != null) {
+			frontendTokenDefinition = _getFrontendTokenDefinition(
+				masterLayoutPageTemplateEntry.getCompanyId(),
+				masterLayoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
+				layout.getThemeId());
+
+			if (frontendTokenDefinition != null) {
+				return frontendTokenDefinition;
+			}
+		}
+
+		return getFrontendTokenDefinition(layout.getLayoutSet());
+	}
 
 	@Override
 	public FrontendTokenDefinition getFrontendTokenDefinition(
@@ -308,6 +341,13 @@ public class FrontendTokenDefinitionRegistryImpl
 	}
 
 	private FrontendTokenDefinition _getFrontendTokenDefinition(
+		long companyId, long layoutId, String themeId) {
+
+		return _getFrontendTokenDefinition(
+			companyId, _getCETExternalReferenceCode(layoutId), themeId);
+	}
+
+	private FrontendTokenDefinition _getFrontendTokenDefinition(
 		long companyId, String externalReferenceCode, String themeId) {
 
 		if (externalReferenceCode != null) {
@@ -437,6 +477,10 @@ public class FrontendTokenDefinitionRegistryImpl
 		_frontendTokenDefinitionsDCLSingleton = new DCLSingleton<>();
 	private final Map<Long, Map<String, FrontendTokenDefinition>>
 		_frontendTokenDefinitionsMap = new ConcurrentHashMap<>();
+
+	@Reference
+	private LayoutPageTemplateEntryLocalService
+		_layoutPageTemplateEntryLocalService;
 
 	@Reference
 	private Portal _portal;
