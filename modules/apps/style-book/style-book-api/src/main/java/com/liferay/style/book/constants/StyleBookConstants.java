@@ -14,4 +14,8 @@ public class StyleBookConstants {
 
 	public static final String SERVICE_NAME = "com.liferay.style.book";
 
+	public static final String THEME_TYPE_BUNDLE = "bundle";
+
+	public static final String THEME_TYPE_THEME_CSS_CET = "themeCSSCET";
+
 }
