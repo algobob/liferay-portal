@@ -14,7 +14,6 @@ import com.liferay.fragment.renderer.DefaultFragmentRendererContext;
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.frontend.token.definition.FrontendTokenDefinition;
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
-import com.liferay.frontend.token.definition.constants.FrontendTokenDefinitionConstants;
 import com.liferay.info.collection.provider.item.selector.criterion.InfoCollectionProviderItemSelectorCriterion;
 import com.liferay.info.field.item.selector.criterion.InfoFieldItemSelectorCriterion;
 import com.liferay.info.item.InfoItemServiceRegistry;
@@ -71,7 +70,6 @@ import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
-import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
@@ -128,6 +126,7 @@ import com.liferay.staging.StagingGroupHelper;
 import com.liferay.style.book.model.StyleBookEntry;
 import com.liferay.style.book.service.StyleBookEntryLocalService;
 import com.liferay.style.book.util.DefaultStyleBookEntryUtil;
+import com.liferay.style.book.util.StyleBookUtil;
 import com.liferay.style.book.util.comparator.StyleBookEntryNameComparator;
 
 import java.util.ArrayList;
@@ -1930,24 +1929,17 @@ public class ContentPageEditorDisplayContext {
 			_frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
 				themeDisplay.getLayout());
 
+		String themeId = null;
+
 		if (frontendTokenDefinition == null) {
-			return themeDisplay.getThemeId();
+			themeId = themeDisplay.getThemeId();
+		}
+		else {
+			themeId = frontendTokenDefinition.getThemeId();
 		}
 
-		Locale locale = (Locale)httpServletRequest.getAttribute(WebKeys.LOCALE);
-
-		if (Objects.equals(
-				frontendTokenDefinition.getThemeType(),
-				FrontendTokenDefinitionConstants.THEME_TYPE_BUNDLE)) {
-
-			return LanguageUtil.format(
-				httpServletRequest, "x-theme",
-				frontendTokenDefinition.getThemeName(locale));
-		}
-
-		return LanguageUtil.format(
-			httpServletRequest, "x-theme-css-client-extension",
-			frontendTokenDefinition.getThemeName(locale));
+		return StyleBookUtil.getThemeName(
+			themeDisplay.getCompanyId(), themeDisplay.getLocale(), themeId);
 	}
 
 	private ItemSelectorCriterion _getURLItemSelectorCriterion() {
