@@ -10,12 +10,9 @@ import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
 import com.liferay.frontend.token.definition.constants.FrontendTokenDefinitionConstants;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.module.service.Snapshot;
-import com.liferay.portal.kernel.util.WebKeys;
 
 import java.util.Locale;
 import java.util.Objects;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Evan Thibodeau
@@ -23,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 public class StyleBookUtil {
 
 	public static String getThemeName(
-		long companyId, HttpServletRequest httpServletRequest, String themeId) {
+		long companyId, Locale locale, String themeId) {
 
 		FrontendTokenDefinition frontendTokenDefinition =
 			_getFrontendTokenDefinition(companyId, themeId);
@@ -32,19 +29,17 @@ public class StyleBookUtil {
 			return themeId;
 		}
 
-		Locale locale = (Locale)httpServletRequest.getAttribute(WebKeys.LOCALE);
-
 		if (Objects.equals(
 				frontendTokenDefinition.getThemeType(),
 				FrontendTokenDefinitionConstants.THEME_TYPE_BUNDLE)) {
 
 			return LanguageUtil.format(
-				httpServletRequest, "x-theme",
+				locale, "x-theme",
 				frontendTokenDefinition.getThemeName(locale));
 		}
 
 		return LanguageUtil.format(
-			httpServletRequest, "x-theme-css-client-extension",
+			locale, "x-theme-css-client-extension",
 			frontendTokenDefinition.getThemeName(locale));
 	}
 
