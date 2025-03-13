@@ -1925,11 +1925,11 @@ public class ContentPageEditorDisplayContext {
 	}
 
 	private String _getThemeName() throws Exception {
+		String themeId = null;
+
 		FrontendTokenDefinition frontendTokenDefinition =
 			_frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
 				themeDisplay.getLayout());
-
-		String themeId = null;
 
 		if (frontendTokenDefinition == null) {
 			themeId = themeDisplay.getThemeId();
