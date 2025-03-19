@@ -11,6 +11,8 @@ import com.liferay.client.extension.constants.ClientExtensionEntryConstants;
 import com.liferay.client.extension.model.ClientExtensionEntryRel;
 import com.liferay.client.extension.service.ClientExtensionEntryRelLocalService;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
+import com.liferay.frontend.token.definition.FrontendTokenDefinition;
+import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.layout.constants.LayoutTypeSettingsConstants;
 import com.liferay.petra.string.StringPool;
@@ -42,7 +44,12 @@ import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.util.ThemeFactoryUtil;
 import com.liferay.sites.kernel.util.Sites;
+import com.liferay.style.book.model.StyleBookEntry;
+import com.liferay.style.book.service.StyleBookEntryLocalService;
+
+import java.util.Objects;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -100,6 +107,70 @@ public class EditLayoutDesignMVCActionCommand extends BaseMVCActionCommand {
 			userId, layout.getGroupId(), _portal.getClassNameId(Layout.class),
 			layout.getPlid(), cetExternalReferenceCode, type, StringPool.BLANK,
 			serviceContext);
+	}
+
+	private String _getSelectedThemeId(
+		ActionRequest actionRequest, long companyId) {
+
+		String themeId = ParamUtil.getString(
+			actionRequest, "themeCSSCETExternalReferenceCode");
+
+		if (themeId.isEmpty()) {
+			themeId = ParamUtil.getString(actionRequest, "regularThemeId");
+		}
+
+		if (themeId.isEmpty()) {
+			boolean inheritLookAndFeel = ParamUtil.getBoolean(
+				actionRequest, "regularInheritLookAndFeel");
+
+			if (inheritLookAndFeel) {
+				themeId = ThemeFactoryUtil.getDefaultRegularThemeId(companyId);
+			}
+		}
+
+		return themeId;
+	}
+
+	private String _getThemeId(Layout layout) {
+		try {
+			FrontendTokenDefinition frontendTokenDefinition =
+				_frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
+					layout);
+
+			return frontendTokenDefinition.getThemeId();
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(portalException);
+			}
+
+			return layout.getThemeId();
+		}
+	}
+
+	private boolean _hasIncompatibleStyleBook(
+		ActionRequest actionRequest, Layout layout, long styleBookEntryId) {
+
+		try {
+			StyleBookEntry styleBookEntry =
+				_styleBookEntryLocalService.getStyleBookEntry(styleBookEntryId);
+
+			String themeId = _getSelectedThemeId(
+				actionRequest, layout.getCompanyId());
+
+			if (themeId.isEmpty()) {
+				themeId = _getThemeId(layout);
+			}
+
+			return !Objects.equals(styleBookEntry.getThemeId(), themeId);
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(portalException);
+			}
+
+			return false;
+		}
 	}
 
 	private void _updateClientExtensionEntryRels(
@@ -248,6 +319,12 @@ public class EditLayoutDesignMVCActionCommand extends BaseMVCActionCommand {
 						Sites.LAYOUT_UPDATEABLE));
 			}
 
+			if (_hasIncompatibleStyleBook(
+					actionRequest, layout, styleBookEntryId)) {
+
+				styleBookEntryId = 0;
+			}
+
 			layout = _layoutService.updateLayout(
 				groupId, layout.isPrivateLayout(), layout.getLayoutId(),
 				layout.getParentLayoutId(), layout.getNameMap(),
@@ -364,6 +441,9 @@ public class EditLayoutDesignMVCActionCommand extends BaseMVCActionCommand {
 	private DLAppLocalService _dlAppLocalService;
 
 	@Reference
+	private FrontendTokenDefinitionRegistry _frontendTokenDefinitionRegistry;
+
+	@Reference
 	private LayoutLocalService _layoutLocalService;
 
 	@Reference
@@ -371,5 +451,8 @@ public class EditLayoutDesignMVCActionCommand extends BaseMVCActionCommand {
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private StyleBookEntryLocalService _styleBookEntryLocalService;
 
 }
