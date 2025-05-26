@@ -1450,6 +1450,12 @@ test.describe('Manage object entries through View Object Entries', () => {
 		page,
 		viewObjectEntriesPage,
 	}) => {
+
+      let objectDefinition;
+      let objectEntryB;
+
+			await test.step('Setup', async () => {
+
 		const objectFields = createObjectFields('text', [
 			{
 				label: 'Custom Field',
@@ -1457,7 +1463,7 @@ test.describe('Manage object entries through View Object Entries', () => {
 			},
 		]);
 
-		const objectDefinition =
+		objectDefinition =
 			await apiHelpers.objectAdmin.postRandomObjectDefinition({
 				objectFields,
 				objectFolderExternalReferenceCode: 'default',
@@ -1502,7 +1508,7 @@ test.describe('Manage object entries through View Object Entries', () => {
 			applicationName
 		);
 
-		const objectEntryB = await apiHelpers.objectEntry.postObjectEntry(
+		objectEntryB = await apiHelpers.objectEntry.postObjectEntry(
 			{
 				customField: 'Entry B',
         [objectRelationship.body.objectField.name]: objectEntryA.id.toString()
@@ -1516,30 +1522,35 @@ test.describe('Manage object entries through View Object Entries', () => {
 			},
 			applicationName
 		);
+      })
 
-		await viewObjectEntriesPage.goto(objectDefinition.className);
+		await test.step('Update object entry relationship', async () => {
+      await viewObjectEntriesPage.goto(objectDefinition.className);
 
-		await page
-			.getByRole('link', {name: objectEntryB.id.toString()})
-			.click();
+      await page
+        .getByRole('link', {name: objectEntryB.id.toString()})
+        .click();
 
-		await expect(page.getByPlaceholder('Search')).toHaveValue('Entry A');
+      await expect(page.getByPlaceholder('Search')).toHaveValue('Entry A');
 
-		await page.getByPlaceholder('Search').click();
+      await page.getByPlaceholder('Search').click();
 
-		await page.getByRole('menuitem', {name: 'Entry C'}).click();
+      await page.getByRole('menuitem', {name: 'Entry C'}).click();
 
-		await viewObjectEntriesPage.saveObjectEntryButton.click();
+      await viewObjectEntriesPage.saveObjectEntryButton.click();
 
-		await waitForAlert(page);
+      await waitForAlert(page);
 
-		await viewObjectEntriesPage.goto(objectDefinition.className);
+      await viewObjectEntriesPage.goto(objectDefinition.className);
 
-		await page
-			.getByRole('link', {name: objectEntryB.id.toString()})
-			.click();
+      await page
+        .getByRole('link', {name: objectEntryB.id.toString()})
+        .click();
 
-		await expect(page.getByPlaceholder('Search')).toHaveValue('Entry C');
+      await expect(page.getByPlaceholder('Search')).toHaveValue('Entry C');
+
+      })
+
 	});
 
 	test('Verify that temporary files are deleted from the database if the object creation is not completed', async ({
