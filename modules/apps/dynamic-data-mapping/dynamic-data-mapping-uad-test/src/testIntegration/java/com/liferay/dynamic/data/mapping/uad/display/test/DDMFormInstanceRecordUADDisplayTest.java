@@ -18,6 +18,7 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.user.associated.data.display.UADDisplay;
 import com.liferay.user.associated.data.test.util.BaseUADDisplayTestCase;
+import com.liferay.user.associated.data.test.util.WhenHasStatusByUserIdField;
 
 import java.io.Serializable;
 
@@ -33,12 +34,23 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Arquillian.class)
 public class DDMFormInstanceRecordUADDisplayTest
-	extends BaseUADDisplayTestCase<DDMFormInstanceRecord> {
+	extends BaseUADDisplayTestCase<DDMFormInstanceRecord>
+	implements WhenHasStatusByUserIdField<DDMFormInstanceRecord> {
 
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new LiferayIntegrationTestRule();
+
+	@Override
+	public DDMFormInstanceRecord addBaseModelWithStatusByUserId(
+			long userId, long statusByUserId)
+		throws Exception {
+
+		return DDMFormInstanceRecordTestUtil.
+			addDDMFormInstanceRecordWithStatusByUserIdAndNoValues(
+				_group, userId, statusByUserId);
+	}
 
 	@Before
 	@Override
