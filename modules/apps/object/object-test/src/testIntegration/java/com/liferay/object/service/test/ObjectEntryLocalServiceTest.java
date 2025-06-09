@@ -2790,21 +2790,19 @@ public class ObjectEntryLocalServiceTest {
 
 		// Can not be empty
 
-		ObjectField localizedObjectField =
-			ObjectFieldUtil.addCustomObjectField(
-				new TextObjectFieldBuilder(
-				).labelMap(
-					LocalizedMapUtil.getLocalizedMap(
-						RandomTestUtil.randomString())
-				).localized(
-					true
-				).name(
-					"customField"
-				).objectDefinitionId(
-					_objectDefinition.getObjectDefinitionId()
-				).userId(
-					TestPropsValues.getUserId()
-				).build());
+		ObjectField localizedObjectField = ObjectFieldUtil.addCustomObjectField(
+			new TextObjectFieldBuilder(
+			).labelMap(
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
+			).localized(
+				true
+			).name(
+				"customField"
+			).objectDefinitionId(
+				_objectDefinition.getObjectDefinitionId()
+			).userId(
+				TestPropsValues.getUserId()
+			).build());
 
 		Map<String, Serializable> localizedValues = Collections.singletonMap(
 			localizedObjectField.getI18nObjectFieldName(),
