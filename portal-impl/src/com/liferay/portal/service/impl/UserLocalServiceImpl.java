@@ -4923,9 +4923,9 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		Date loginDate = user.getLoginDate();
 
-		if (loginDate == null) {
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-36010")) {
 			user.setLoginDate(date);
-			user.setLastLoginDate(date);
+			user.setLastLoginDate(loginDate);
 
 			try (SafeCloseable safeCloseable =
 					CTCollectionThreadLocal.
@@ -4933,7 +4933,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 				return userLocalService.updateUser(user);
 			}
-		}
+		} else {
 
 		user.setLoginDate(date);
 		user.setLastLoginDate(loginDate);
@@ -4941,6 +4941,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		_batchProcessor.add(user);
 
 		return user;
+    }
 	}
 
 	/**
