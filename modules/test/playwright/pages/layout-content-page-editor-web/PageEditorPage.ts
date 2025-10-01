@@ -49,12 +49,14 @@ type MappingConfiguration =
 export class PageEditorPage {
 	readonly page: Page;
 
+    readonly detachStyleButton: Locator;
 	readonly editModeButton: Locator;
 	readonly experienceSelector: Locator;
 	readonly languageSelector: Locator;
 	readonly publishButton: Locator;
 	readonly publishMasterButton: Locator;
 	readonly publishToLiveButton: Locator;
+	readonly backgroundColorInput: Locator;
 	readonly redoButton: Locator;
 	readonly segmentEditorPage: SegmentEditorPage;
 	readonly selectItemMappingButton: Locator;
@@ -64,6 +66,9 @@ export class PageEditorPage {
 	constructor(page: Page) {
 		this.page = page;
 
+		this.backgroundColorInput = page.locator('.layout__color-picker__input').first();
+		this.detachStyleButton = page.getByLabel('Background Color',
+		 { exact: true }).getByRole('button', { name: 'Detach Style' });
 		this.editModeButton = page.getByLabel('Select edit mode').first();
 		this.experienceSelector = page.locator(
 			'.page-editor__experience-selector'
