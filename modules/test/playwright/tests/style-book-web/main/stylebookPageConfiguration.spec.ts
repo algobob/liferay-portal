@@ -21,68 +21,64 @@ const test = mergeTests(
 	}),
 	isolatedSiteTest,
 	loginTest(),
-	pageEditorPagesTest,
+	pageEditorPagesTest
 );
 
-test('Persist previous color reference when populating wrong digit characters',
-		{
-			tag: '@LPS-141568',
-		},
- async ({
-		apiHelpers,
-		page,
-		pageEditorPage,
-		site,
-	}) => {
+test(
+	'Persist previous color reference when populating wrong digit characters',
+	{
+		tag: '@LPS-141568',
+	},
+	async ({apiHelpers, page, pageEditorPage, site}) => {
+		let layout;
+		let containerId;
 
-  let layout;
-  let containerId;
+		await test.step('Add a Container to a content page', async () => {
+			containerId = getRandomString();
 
-  await test.step('Add a Container to a content page', async () => {
-		containerId = getRandomString();
-
-		layout = await apiHelpers.headlessDelivery.createSitePage({
-			pageDefinition: getPageDefinition([
-				getContainerDefinition({id: containerId}),
-			]),
-			siteId: site.id,
-			title: getRandomString(),
-		});
-  });
-
-  await test.step('Change the Background Color to Info', async () => {
-		await pageEditorPage.goto(layout, site.friendlyUrlPath);
-
-		await pageEditorPage.changeFragmentConfiguration({
-			fieldLabel: 'Background Color',
-			fragmentId: containerId,
-			tab: 'Styles',
-			value: 'Info',
-			valueFromStylebook: true,
+			layout = await apiHelpers.headlessDelivery.createSitePage({
+				pageDefinition: getPageDefinition([
+					getContainerDefinition({id: containerId}),
+				]),
+				siteId: site.id,
+				title: getRandomString(),
+			});
 		});
 
-		expect(
-			await pageEditorPage.getFragmentStyle({
+		await test.step('Change the Background Color to Info', async () => {
+			await pageEditorPage.goto(layout, site.friendlyUrlPath);
+
+			await pageEditorPage.changeFragmentConfiguration({
+				fieldLabel: 'Background Color',
 				fragmentId: containerId,
-				style: 'backgroundColor',
-			})
-		).toBe('rgb(46, 90, 172)');
-  });
+				tab: 'Styles',
+				value: 'Info',
+				valueFromStylebook: true,
+			});
 
-  await test.step('Detach the linked token', async () => {
-    await pageEditorPage.detachStyleButton.click();
-  });
+			expect(
+				await pageEditorPage.getFragmentStyle({
+					fragmentId: containerId,
+					style: 'backgroundColor',
+				})
+			).toBe('rgb(46, 90, 172)');
+		});
 
-    await test.step('Assert previous color is referenced when populated with wrong chars', async () => {
-		await pageEditorPage.backgroundColorInput.fill(getRandomString())
-		await page.waitForTimeout(1000);
-		await pageEditorPage.backgroundColorInput.blur()
+		await test.step('Detach the linked token', async () => {
+			await pageEditorPage.detachStyleButton.click();
+		});
 
-		expect(
-			await pageEditorPage.getFragmentStyle({
-				fragmentId: containerId,
-				style: 'backgroundColor',
-			})
-		).toBe('rgb(46, 90, 172)');
-	});
-});
+		await test.step('Assert previous color is referenced when populated with wrong chars', async () => {
+			await pageEditorPage.backgroundColorInput.fill(getRandomString());
+			await page.waitForTimeout(1000);
+			await pageEditorPage.backgroundColorInput.blur();
+
+			expect(
+				await pageEditorPage.getFragmentStyle({
+					fragmentId: containerId,
+					style: 'backgroundColor',
+				})
+			).toBe('rgb(46, 90, 172)');
+		});
+	}
+);
