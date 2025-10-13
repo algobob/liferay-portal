@@ -6,6 +6,10 @@ definition {
 	property portal.upstream = "true";
 	property testray.main.component.name = "Login";
 
+	setUp {
+		User.firstLoginPG();
+	}
+
 	@description = "This is a use case for LPS-108998."
 	@priority = 4
 	test AssertEmailVerificationIsRequiredByDefault {
@@ -201,8 +205,6 @@ definition {
 		var facebookPassword = PropsUtil.get("facebook.password");
 
 		task ("Given: Go to edit default password policy to disable password changeable and enabled Facebook SSO") {
-			User.firstLoginPG();
-
 			var siteName = TestCase.getSiteName(siteName = ${siteName});
 
 			PasswordPolicies.openPasswordPoliciesAdmin();
@@ -251,9 +253,7 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
-		task ("Login and add a public page ") {
-			User.firstLoginPG();
-
+		task ("Add a public page ") {
 			JSONLayout.addPublicLayout(
 				groupName = "Guest",
 				layoutName = "landing");
@@ -289,9 +289,7 @@ definition {
 		var facebookEmail = PropsUtil.get("facebook.email");
 		var facebookPassword = PropsUtil.get("facebook.password");
 
-		task ("Login and edit facebook authentication") {
-			User.firstLoginPG();
-
+		task ("Edit facebook authentication") {
 			var siteName = TestCase.getSiteName(siteName = ${siteName});
 
 			PortalSettings.gotoConfiguration(
@@ -329,9 +327,7 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
-		task ("Login and configure spanish as default and current portal language") {
-			User.firstLoginPG();
-
+		task ("Configure spanish as default and current portal language") {
 			var portalURL = PropsUtil.get("portal.url");
 
 			PortalSettings.gotoConfiguration(
@@ -369,6 +365,8 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		SignOut.signOut();
+
 		task ("When: User tries to login with wrong credential") {
 			User.firstLoginUI(userEmailAddress = "wrong@liferay.com");
 		}
@@ -392,9 +390,7 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
-		task ("Given: Login and enable OTP and Sign Out as Instance Admin") {
-			User.firstLoginPG();
-
+		task ("Given: Enable OTP and Sign Out as Instance Admin") {
 			MultiFactorAuthentication.openToConfigInInstanceSettings();
 
 			MultiFactorAuthentication.configureOTP(enableOtp = "true");
@@ -424,9 +420,7 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
-		task ("Login and view General CP authentication settings") {
-			User.firstLoginPG();
-
+		task ("View General CP authentication settings") {
 			PortalSettings.viewAuthenticationGeneralCP();
 		}
 
